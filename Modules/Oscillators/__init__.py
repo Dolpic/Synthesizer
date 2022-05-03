@@ -1,0 +1,3 @@
+class Oscillator:
+
+    @staticmethod
