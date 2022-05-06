@@ -5,10 +5,13 @@ class Oscillators:
 
     @staticmethod
     def Sine(x, frequency, amp=1):
-        return np.sin(frequency * x*2*np.pi)*amp
+        return np.sin(2*np.pi * frequency * x)*amp
+
     @staticmethod
-
     def Sawtooth(x, frequency, amp=1):
-        return signal.sawtooth(frequency * x*2*np.pi)*amp
+        return signal.sawtooth(2*np.pi * frequency * x)*amp
 
-    #TODO Implement : Square, Triangle and others
+    def Square(x, frequency, duty=0.5, amp=1):
+        return signal.square(2*np.pi * frequency * x, duty=duty)*amp
+
+    #TODO Implement : Triangle and others

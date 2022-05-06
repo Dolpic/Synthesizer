@@ -5,6 +5,7 @@ import sounddevice as sd
 from parameters import *
 from MIDI.MidiHandler import MidiHandler
 from Modules.Oscillators import Oscillators
+from Modules.Filters.LowPass import *
 
 """
 INIT
@@ -18,6 +19,9 @@ midi_handler = MidiHandler()
 """
 FUNCTIONS
 """
+
+lowPass = LowPass(1000, 0.5)
+
 def show_peripherals():
     print("MIDI Inputs : ")
     for i in range(pygame.midi.get_count()):
@@ -29,11 +33,16 @@ def show_peripherals():
 
 
 def process_output(times, notes):
-    outputs = 0
-    #print(notes)
+    GENERAL_VOLUME = 0.2
+    outputs = np.zeros(len(times))
     for note, amplitude in notes:
-        outputs += Oscillators.Sine(times, note, amplitude)
-    #if len(notes) != 0 : outputs /= len(notes)
+        outputs += Oscillators.Square(times, note, amplitude)
+    outputs *= GENERAL_VOLUME
+
+    #Filters
+    outputs = lowPass.process(outputs)
+    print(outputs)
+
     return outputs, outputs
 
 
