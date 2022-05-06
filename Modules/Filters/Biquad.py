@@ -18,16 +18,12 @@ class Biquad:
 
     def process(self, input):
         result = np.empty(0)
+        c = self.c
         for x in input:
-            val = self.c[0]*x + self.c[1]*self.x_prev + self.c[2]*self.x_prev_prev - self.c[3]*self.y_prev - self.c[4]*self.y_prev_prev
+            val = c[0]*x + c[1]*self.x_prev + c[2]*self.x_prev_prev - c[3]*self.y_prev - c[4]*self.y_prev_prev
             result = np.append(result, val)
             self.x_prev_prev = self.x_prev
             self.x_prev = x
             self.y_prev_prev = self.y_prev
             self.y_prev = val
-
-        print(result)
-
         return result
-
-

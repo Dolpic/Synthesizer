@@ -4,7 +4,7 @@ from MIDI.midi_utils import *
 class Arpeggiator:
 
     repeat = True
-    arpege = [(0, 0, 0), (10, 0, 0), (20, 0, 0)]
+    arpege = [(0, 0.2, 0), (10, 0.2, 0), (20, 0.2, 0)]
     schedule_list = []
 
     def __init__(self):
