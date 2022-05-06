@@ -14,8 +14,9 @@ MIDI CONSTANTS
 """
 
 # Status
-MIDI_DOWN = 144
-MIDI_UP   = 128
+MIDI_DOWN    = 144
+MIDI_UP      = 128
+MIDI_NOTHING = -1
 
 # Keys
 MIDI_LOWER_KEY  = 0

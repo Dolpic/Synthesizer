@@ -36,12 +36,11 @@ def process_output(times, notes):
     GENERAL_VOLUME = 0.2
     outputs = np.zeros(len(times))
     for note, amplitude in notes:
-        outputs += Oscillators.Square(times, note, amplitude)
+        outputs += Oscillators.Sine(times, note, amplitude)
     outputs *= GENERAL_VOLUME
 
     #Filters
     outputs = lowPass.process(outputs)
-    print(outputs)
 
     return outputs, outputs
 
