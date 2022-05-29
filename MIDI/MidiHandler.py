@@ -8,7 +8,7 @@ class MidiHandler:
     arp = Arpeggiator()
     default = Default()
 
-    def handle(self, input):
+    def process(self, input):
         if input.poll():
             status, note, velocity, _ = input.read(1)[0][0]
             if DEBUG : print_midi(status, note, velocity)
@@ -19,5 +19,5 @@ class MidiHandler:
         return np.asarray([(midi_to_frequency(note), amplitude) for note, amplitude in current_notes])
 
     def apply_filter(self, status, note, velocity):
-        return self.arp.process(status, note, velocity)
+        return self.default.process(status, note, velocity)
         

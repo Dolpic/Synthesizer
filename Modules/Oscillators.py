@@ -1,17 +1,29 @@
 import numpy as np
 from scipy import signal
 
-class Oscillators:
+class Sine:
+    def __init__(self, freq, amp=1):
+        self.freq = freq
+        self.amp  = amp
 
-    @staticmethod
-    def Sine(x, frequency, amp=1):
-        return np.sin(2*np.pi * frequency * x)*amp
+    def get(self, x):
+        return np.sin(2*np.pi * self.freq * x)*self.amp
 
-    @staticmethod
-    def Sawtooth(x, frequency, amp=1):
-        return signal.sawtooth(2*np.pi * frequency * x)*amp
 
-    def Square(x, frequency, duty=0.5, amp=1):
-        return signal.square(2*np.pi * frequency * x, duty=duty)*amp
+class Square:
+    def __init__(self, freq, duty=0.5, amp=1):
+        self.freq = freq
+        self.amp  = amp
+        self.duty = duty
 
-    #TODO Implement : Triangle and others
+    def get(self, x):
+        return signal.square(2*np.pi * self.freq * x, duty=self.duty)*self.amp
+
+
+class Sawtooth:
+    def __init__(self, freq, amp=1):
+        self.freq = freq
+        self.amp  = amp
+
+    def get(self, x):
+        return signal.sawtooth(2*np.pi * self.freq * x)*self.amp

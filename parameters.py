@@ -1,13 +1,17 @@
+import sounddevice as sd
+
 """
 PARAMETERS
 """
 
-INPUT_MIDI_DEVICE  = 3
+INPUT_MIDI_DEVICE  = 1
 OUTPUT_DEVICE      = 'pulse'#sd.default.device
 
-DEBUG              = True
+DEBUG              = False
 SAMPLING_FREQUENCY = 44100 
-SAMPLES_PER_FRAME  = 1024
+SAMPLES_PER_FRAME  = 2048
+
+GENERAL_VOLUME = 0.2
 
 """
 MIDI CONSTANTS
@@ -21,3 +25,9 @@ MIDI_NOTHING = -1
 # Keys
 MIDI_LOWER_KEY  = 0
 MIDI_HIGHER_KEY = 127 
+
+"""
+GUI
+"""
+
+WINDOW_REFRESH_RATE = 30
