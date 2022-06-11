@@ -1,34 +1,37 @@
 from parameters import *
 import numpy as np
+from Modules.Module import *
 
-class Reverb:
+class Reverb(Module):
+    audible_limit = 0.001
 
-    def __init__(self, delay, amplitude=0.5, max_repeat=0):
-        self.delay = delay*SAMPLING_FREQUENCY
-        self.amplitude = amplitude
-        self.max_repeat = max_repeat
+    def __init__(self, delay, dampening=0.5):
+        params = self._param_to_modules([delay, dampening])
+        self.delay      = params[0]
+        self.dampening  = params[1]
+
         self.reverbs = []
 
-    def process(self, input):
+    def get(self, input):
         result = input
-        to_remove = None
+        to_remove = []
 
         for entry in self.reverbs:
             entry["delay"] -= len(input)
             if(entry["delay"] <= 0):
-                entry["counter"] += 1
-                entry["delay"] = self.delay*SAMPLING_FREQUENCY
-                if entry["counter"] >= self.max_repeat and self.max_repeat > 0:
-                    to_remove = entry
-                result += entry["data"]*self.amplitude
+                result += entry["data"] * np.maximum(1-self.dampening.get(input), 0)
+                to_remove.append(entry)
 
-        self.reverbs.append({
-            "delay" : self.delay,
-            "counter" : 0,
-            "data" : input
-        })
+        if not self._is_data_inaudible(input):
+            self.reverbs.append({
+                "delay" : self.delay.get(input)[0]*SAMPLING_FREQUENCY,
+                "data" : input
+            })
 
-        if to_remove != None:
-            self.reverbs.remove(entry)
+        for x in to_remove:
+            self.reverbs.remove(x)
 
         return result
+
+    def _is_data_inaudible(self, data):
+        return np.max(data) < self.audible_limit and np.min(data) > -self.audible_limit

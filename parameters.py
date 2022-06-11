@@ -9,7 +9,7 @@ OUTPUT_DEVICE      = 'pulse'#sd.default.device
 
 DEBUG              = False
 SAMPLING_FREQUENCY = 44100 
-SAMPLES_PER_FRAME  = 2048
+SAMPLES_PER_FRAME  = 128
 
 GENERAL_VOLUME = 0.2
 

@@ -1,6 +1,6 @@
 import numpy as np
 from parameters import *
-from Modules.Filters.Biquad import *
+from Modules.Filters.Personal.Biquad import *
 
 class BandPass(Biquad):
 

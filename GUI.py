@@ -4,7 +4,7 @@ import math
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg 
 from matplotlib.figure import Figure 
-from scipy.fft import rfft, rfftfreq
+from scipy.fft import rfft
 
 from parameters import *
 
