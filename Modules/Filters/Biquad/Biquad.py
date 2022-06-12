@@ -14,10 +14,11 @@ class Biquad(Module):
         l = SAMPLES_PER_FRAME
         self.c = [c[0]*l, c[1]*l, c[2]*l, c[3]*l, c[4]*l]
 
-    def _set_f0_Q(self, f0, Q):
-        params = self._param_to_modules([f0, Q])
+    def _set_f0_Q(self, f0, Q, gain=0):
+        params = self._param_to_modules([f0, Q, gain])
         self.f0 = params[0]
         self.Q  = params[1]
+        self.gain = params[2]
         self._update_c([0]*SAMPLES_PER_FRAME)
 
     def _update_c(self, input):

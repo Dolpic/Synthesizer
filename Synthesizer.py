@@ -8,8 +8,8 @@ from parameters import *
 from utils import *
 from MIDI.MidiHandler import MidiHandler
 from Modules.Oscillators import *
-from Modules.Filters.LowPass import LowPass
-from Modules.Filters.HighPass import HighPass
+from Modules.Filters.Biquad.LowPass import LowPass
+from Modules.Filters.Biquad.HighPass import HighPass
 from Modules.Filters.Reverb import *
 
 class Synthesizer:

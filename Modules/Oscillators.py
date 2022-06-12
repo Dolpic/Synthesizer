@@ -36,9 +36,13 @@ class Square(Oscillator):
         return signal.square(2*np.pi * self.freq.get(x) * x, duty=self.duty.get(x))*self.amp.get(x) + self.offset.get(x)
 
 class Sawtooth(Oscillator):
-    def __init__(self, freq=0, amp=1, offset=0):
-        self.set(freq, amp=amp, offset=offset)
+    def __init__(self, freq=0, amp=1, width=0, offset=0):
+        self.set(freq, amp=amp, offset=offset, duty=width)
 
     def get(self, x):
         x = self._get_next_times(len(x))
-        return signal.sawtooth(2*np.pi * self.freq.get(x) * x)*self.amp.get(x) + self.offset.get(x)
+        return signal.sawtooth(2*np.pi * self.freq.get(x) * x, self.duty.get(x))*self.amp.get(x) + self.offset.get(x)
+
+class Triangle(Sawtooth):
+    def __init__(self, freq=0, amp=1, offset=0):
+        super().__init__(freq=freq, amp=amp, width=0.5, offset=offset)
