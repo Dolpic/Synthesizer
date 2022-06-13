@@ -1,5 +1,7 @@
 import time
-from MIDI.midi_utils import *
+from parameters import MIDI_DOWN, MIDI_UP
+from MIDI.midi_utils import is_piano_key
+
 
 class Arpeggiator:
 
@@ -12,17 +14,19 @@ class Arpeggiator:
 
     def process(self, status, note, velocity):
         if is_piano_key(note):
-            if status   == MIDI_DOWN: self.schedule(note, velocity)
-            elif status == MIDI_UP:   self.unschedule(note)
+            if status == MIDI_DOWN:
+                self.schedule(note, velocity)
+            elif status == MIDI_UP:
+                self.unschedule(note)
         return self.get_notes()
 
     def get_notes(self):
         output = []
         for (note, vel), (step, goal_time, goal_note, goal_vel) in self.schedule_list:
             output.append((goal_note, goal_vel))
-            if time.time() >= goal_time :
+            if time.time() >= goal_time:
                 self.unschedule(note)
-                self.schedule(note, vel, (step+1)%len(self.arpege) )
+                self.schedule(note, vel, (step+1) % len(self.arpege))
         return output
 
     def schedule(self, note, velocity, step=0):
@@ -33,4 +37,4 @@ class Arpeggiator:
         self.schedule_list.append( ( (note, velocity), (step, next_time, next_note, next_vel) ) )
 
     def unschedule(self, note):
-        self.schedule_list = list(filter(lambda x:x[0][0]!=note, self.schedule_list))
+        self.schedule_list = list(filter(lambda x: x[0][0] != note, self.schedule_list))

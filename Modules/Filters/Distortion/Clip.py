@@ -2,6 +2,7 @@ import numpy as np
 
 from Modules.Module import *
 
+
 class Clip(Module):
     def __init__(self, limit, hardness):
         params = self._param_to_modules([limit, hardness])
@@ -16,4 +17,3 @@ class Clip(Module):
         # Adapted from https://ccrma.stanford.edu/~jos/pasp/Soft_Clipping.html
         h = self.hardness.get(input)
         return limit * h / (h-1) * (input - (input ** h) / h)
-

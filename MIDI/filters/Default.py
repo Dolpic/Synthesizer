@@ -1,6 +1,7 @@
 import numpy as np
-from parameters import *
-from MIDI.midi_utils import *
+from parameters import MIDI_DOWN, MIDI_UP
+from MIDI.midi_utils import is_piano_key
+
 
 class Default:
     keys_down = {}
@@ -8,7 +9,7 @@ class Default:
     notes = np.empty(0)
 
     def process(self, status, note, velocity):
-        if is_piano_key(note) :
+        if is_piano_key(note):
             if status == MIDI_DOWN:
                 self.keys_down[note] = velocity
             elif status == MIDI_UP:

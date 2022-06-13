@@ -3,6 +3,7 @@ import numpy as np
 from parameters import *
 from Modules.Constant import *
 
+
 class Module:
     is_dynamic = False
 
@@ -15,4 +16,4 @@ class Module:
         return params_array
 
     def get(self, input):
-        raise Exception("Function get must be implemented")
+        raise NotImplementedError()
