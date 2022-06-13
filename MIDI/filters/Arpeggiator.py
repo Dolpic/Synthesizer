@@ -5,12 +5,10 @@ from MIDI.midi_utils import is_piano_key
 
 class Arpeggiator:
 
-    repeat = True
-    arpege = [(0, 0.2, 0), (5, 0.2, -0.1), (9, 0.2, -0.3)]
-    schedule_list = []
-
     def __init__(self):
-        pass
+        self.schedule_list = []
+        self.repeat = True
+        self.arpege = [(0, 0.2, 0), (5, 0.2, -0.1), (9, 0.2, -0.3)]
 
     def process(self, status, note, velocity):
         if is_piano_key(note):
