@@ -9,5 +9,5 @@ if __name__ == "__main__":
     synth = Synthesizer(queue)
     gui = GUI(queue)
     proc = Process(target=gui.run).start()
-    show_peripherals();
+    show_peripherals()
     synth.run()
