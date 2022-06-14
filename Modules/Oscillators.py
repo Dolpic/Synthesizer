@@ -1,17 +1,14 @@
 import numpy as np
 from scipy import signal
 
-from Modules.Module import *
+from Modules.Module import Module
 
 
 class Oscillator(Module):
     def set(self, freq, amp=1, offset=0, duty=0.5):
-        params = self._param_to_modules([freq, amp, duty, offset])
-        self.freq   = params[0]
-        self.amp    = params[1]
-        self.duty   = params[2]
-        self.offset = params[3]
+        self.freq, self.amp, self.duty, self.offset = self._param_to_modules([freq, amp, duty, offset])
         return self
+
 
 class Sine(Oscillator):
     def __init__(self, freq=0, amp=1, offset=0):

@@ -1,7 +1,5 @@
 import numpy as np
-
-from parameters import *
-from Modules.Constant import *
+from Modules.Constant import Constant
 
 
 class Module:
@@ -28,14 +26,18 @@ class Module:
     def get(self, input):
         raise NotImplementedError()
 
-    def __add__(self, other) :
+    def __add__(self, other):
         return Module_Operation(self, other, "+")
-    def __sub__(self, other) :
+
+    def __sub__(self, other):
         return Module_Operation(self, other, "-")
-    def __mul__(self, other) :
+
+    def __mul__(self, other):
         return Module_Operation(self, other, "*")
-    def __truediv__(self, other) :
+
+    def __truediv__(self, other):
         return Module_Operation(self, other, "/")
+
 
 class Module_Operation(Module):
     def __init__(self, first, second, op):

@@ -1,14 +1,15 @@
 import time
+import math
 from parameters import MIDI_DOWN, MIDI_UP
 from MIDI.midi_utils import is_piano_key
 
 
 class Envelope:
 
-    def __init__(self, envelope_function, envelope_max_time):
+    def __init__(self, function, max_time):
         self.schedule_list = []
-        self.envelope = envelope_function
-        self.envelope_max_time = envelope_max_time
+        self.envelope = function
+        self.max_time = max_time
 
     def process(self, status, note, velocity):
         if is_piano_key(note):
@@ -24,7 +25,7 @@ class Envelope:
         output = []
 
         for (note, goal_vel, hit_time) in self.schedule_list:
-            if now - hit_time < self.envelope_max_time:
+            if now - hit_time < self.max_time:
                 curr_vel = self.envelope(now - hit_time)
                 output.append((note, curr_vel))
                 new_schedule_list.append((note, goal_vel, hit_time))

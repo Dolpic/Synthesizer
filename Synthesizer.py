@@ -7,7 +7,7 @@ from MIDI.MidiHandler import MidiHandler
 from Modules.Oscillators import Sine, Square, Sawtooth
 from Modules.Filters.Biquad.LowPass import LowPass
 from Modules.Filters.Biquad.HighPass import HighPass
-from Modules.Filters.Reverb import *
+from Modules.Filters.Reverb import Reverb
 from Modules.ADSR import *
 from Modules.Linear import *
 
@@ -18,8 +18,8 @@ class Synthesizer:
         sd.default.samplerate = SAMPLING_FREQUENCY
         self.queue = queue
 
-        self.lowPass = LowPass(1500, 3)
-        self.highPass = HighPass(500, 3)
+        self.lowPass = LowPass(15000, 3)
+        self.highPass = HighPass(50, 3)
         self.reverb = Reverb(0.05, 0.7)
 
         self.sine = Sine()
@@ -27,9 +27,9 @@ class Synthesizer:
         self.saw = Sawtooth()
 
         self.adsr = ADSR(
-            0.1, Linear(0 , 1  , 0.1), 
-            0.1, Linear(1 , 0.3, 0.1), 
-            0.3, 
+            0.1, Linear(0 , 1  , 0.1),
+            0.1, Linear(1 , 0.3, 0.1),
+            0.3,
             2, Linear(0.3 , 0, 2)
         )
 
