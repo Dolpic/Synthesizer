@@ -4,16 +4,21 @@ from Modules.Module import *
 
 
 class Clip(Module):
-    def __init__(self, limit, hardness):
+    def __init__(self, limit, hardness=0):
         params = self._param_to_modules([limit, hardness])
-        self.limit = limit
-        self.hardness = hardness
+        self.limit = params[0]
+        self.hardness = params[1]
 
     def get(self, input):
-        limit = self.limit.get(input)
-        input = np.where(input > limit, limit, input)
-        input = np.where(input < -limit, -limit, input)
+        l = self.limit.get(input)
+        print(l)
+        input = np.where(input > l, l, input)
+        input = np.where(input < -l, -l, input)
 
         # Adapted from https://ccrma.stanford.edu/~jos/pasp/Soft_Clipping.html
         h = self.hardness.get(input)
-        return limit * h / (h-1) * (input - (input ** h) / h)
+        if h.all() <= 0 :
+            return input
+        else :
+
+            return (l - h)/(h - 1) * (input/l - (input**h)/((l**h)*h))

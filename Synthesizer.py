@@ -10,6 +10,7 @@ from Modules.Filters.Biquad.HighPass import HighPass
 from Modules.Filters.Reverb import *
 from Modules.ADSR import *
 from Modules.Linear import *
+from Modules.Filters.Distortion.Clip import *
 
 class Synthesizer:
     def __init__(self, queue):
@@ -20,17 +21,19 @@ class Synthesizer:
 
         self.lowPass = LowPass(1500, 3)
         self.highPass = HighPass(500, 3)
-        self.reverb = Reverb(0.05, 0.7)
+        self.reverb = Reverb(0.4, 0.7)
+
+        self.clip = Clip(Sine(1,1,1), hardness=0)
 
         self.sine = Sine()
         self.square = Square()
-        self.saw = Sawtooth()
+        self.saw = Sine()
 
         self.adsr = ADSR(
-            0.1, Linear(0 , 1  , 0.1), 
-            0.1, Linear(1 , 0.3, 0.1), 
-            0.3, 
-            2, Linear(0.3 , 0, 2)
+            0.3, Linear(0 , 1  , 0.3), 
+            0.3, Linear(1 , 0.2, 0.3), 
+            0.2, 
+            0.2, Linear(0.2 , 0, 0.2)
         )
 
     def run(self):
@@ -60,16 +63,17 @@ class Synthesizer:
     def frequencies_to_sound(self, times, frequencies):
         outputs = np.zeros(len(times))
 
-        frequencies = self.adsr.get(frequencies)
+        #frequencies = self.adsr.get(frequencies)
 
         # Time : 1e-06
         for freq, amp in frequencies:
-            outputs += self.sine.set(freq, amp=amp).get(times)
+            outputs += self.sine.set(freq, amp=1).get(times)
             #outputs += self.square.set(freq*2, amp=amp/2).get(times)
-            outputs += self.saw.set(freq*3, amp=amp/3).get(times)
+            #outputs += self.saw.set(freq*3, amp=amp/3).get(times)
 
-        outputs = self.lowPass.get(outputs)
-        outputs = self.highPass.get(outputs)
+        #outputs = self.lowPass.get(outputs)
+        #outputs = self.highPass.get(outputs)
+        outputs = self.clip.get(outputs)
         #outputs = self.reverb.get(outputs)
 
         outputs = outputs.astype('float32') * GENERAL_VOLUME*0.5
