@@ -33,14 +33,19 @@ class Synthesizer:
         self.square = Square()
         self.saw = Sawtooth()
 
+        a_level = 0.9
+        a = 0.1
+        d = 0.05
+        s = 0.8
+        r = 0.05
         self.adsr = ADSR(
-            attack_time=0.1,
-            attack_func=Linear(0.0, 1.0, 0.1),
-            decay_time=0.1,
-            decay_func=Linear(1.0, 0.3, 0.1),
-            sustain_func=0.3,
-            release_time=2.0,
-            release_func=Linear(0.3, 0.0, 2.0),
+            attack_time=a,
+            attack_func=Linear(0.0, a_level, a),
+            decay_time=d,
+            decay_func=Linear(a_level, s, d),
+            sustain_func=s,
+            release_time=r,
+            release_func=Linear(s, 0.0, r),
         )
 
     def run(self):
@@ -79,12 +84,12 @@ class Synthesizer:
         for freq, amp in frequencies_amplitudes:
             outputs += self.sine.set(freq, amp=amp).get(times)
             # outputs += self.square.set(freq*2, amp=amp/2).get(times)
-            outputs += self.saw.set(freq * 3, amp=amp / 3).get(times)
+            outputs += self.saw.set(freq * 3, amp=amp / 4).get(times)
 
         outputs = self.lowPass.get(outputs)
         outputs = self.highPass.get(outputs)
         # outputs = self.reverb.get(outputs)
 
-        outputs = outputs.astype("float32") * GENERAL_VOLUME * 0.5
+        outputs = outputs.astype("float32") * GENERAL_VOLUME
         self.queue.put_nowait(outputs)
         return outputs, outputs
