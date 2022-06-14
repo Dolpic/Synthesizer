@@ -1,7 +1,6 @@
 import numpy as np
-
-from parameters import *
-from Modules.Constant import *
+from Modules.Constant import Constant
+from parameters import SAMPLING_FREQUENCY
 
 
 class Module:
@@ -18,7 +17,10 @@ class Module:
         return params_array
 
     def _get_next_times(self, input_size):
-        times = np.arange(self.current_sample, self.current_sample+input_size) /SAMPLING_FREQUENCY
+        times = (
+            np.arange(self.current_sample, self.current_sample + input_size)
+            / SAMPLING_FREQUENCY
+        )
         self.current_sample += input_size
         return times
 
@@ -28,14 +30,18 @@ class Module:
     def get(self, input):
         raise NotImplementedError()
 
-    def __add__(self, other) :
+    def __add__(self, other):
         return Module_Operation(self, other, "+")
-    def __sub__(self, other) :
+
+    def __sub__(self, other):
         return Module_Operation(self, other, "-")
-    def __mul__(self, other) :
+
+    def __mul__(self, other):
         return Module_Operation(self, other, "*")
-    def __truediv__(self, other) :
+
+    def __truediv__(self, other):
         return Module_Operation(self, other, "/")
+
 
 class Module_Operation(Module):
     def __init__(self, first, second, op):

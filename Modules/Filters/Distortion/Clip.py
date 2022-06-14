@@ -1,13 +1,11 @@
 import numpy as np
 
-from Modules.Module import *
+from Modules.Module import Module
 
 
 class Clip(Module):
     def __init__(self, limit, hardness=0):
-        params = self._param_to_modules([limit, hardness])
-        self.limit = params[0]
-        self.hardness = params[1]
+        self.limit, self.hardness = self._param_to_modules([limit, hardness])
 
     def get(self, input):
         l = self.limit.get(input)

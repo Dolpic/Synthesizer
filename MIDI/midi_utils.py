@@ -15,4 +15,7 @@ def midi_to_frequency_eqtemp(midi_number):
     REF_FREQUENCY = 440
     NB_NOTES_IN_SCALE = 12
     OCTAVE_FREQUENCY_RATIO = 2
-    return np.power(OCTAVE_FREQUENCY_RATIO, (midi_number-REF_NOTE)/NB_NOTES_IN_SCALE) * REF_FREQUENCY
+    return (
+        np.power(OCTAVE_FREQUENCY_RATIO, (midi_number - REF_NOTE) / NB_NOTES_IN_SCALE)
+        * REF_FREQUENCY
+    )

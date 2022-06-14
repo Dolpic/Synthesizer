@@ -1,16 +1,12 @@
-import numpy as np
+from Modules.Module import Module
 
-from Modules.Module import *
-from parameters import *
 
 class Linear(Module):
     def __init__(self, start, stop, duration):
         super().__init__()
-        params = [start, stop, duration]
-        self._param_to_modules(params)
-        self.start = params[0]
-        self.stop  = params[1]
-        self.duration = params[2]
+        self.start, self.stop, self.duration = self._param_to_modules(
+            [start, stop, duration]
+        )
 
     def get(self, input):
         times = self._get_next_times(len(input))
