@@ -81,18 +81,18 @@ class Synthesizer:
     def frequencies_to_sound(self, times, freq_amp):
         outputs = np.zeros(len(times))
 
-        #freq_amp = self.adsr.get(freq_amp)
+        #freq_amp = self.adsr.get(times, freq_amp)
 
         # Time : 1e-06
         for freq, amp in freq_amp:
-            outputs += self.sine.set(freq, amp=1).get(times)
-            #outputs += self.square.set(freq*2, amp=amp/2).get(times)
-            #outputs += self.saw.set(freq*3, amp=amp/3).get(times)
+            outputs += self.sine.set(freq, amp=1).get(times, outputs)
+            #outputs += self.square.set(freq*2, amp=amp/2).get(times, outputs)
+            #outputs += self.saw.set(freq*3, amp=amp/3).get(times, outputs)
 
-        #outputs = self.lowPass.get(outputs)
-        #outputs = self.highPass.get(outputs)
-        outputs = self.clip.get(outputs)
-        #outputs = self.reverb.get(outputs)
+        #outputs = self.lowPass.get(times, outputs)
+        #outputs = self.highPass.get(times, outputs)
+        outputs = self.clip.get(times, outputs)
+        #outputs = self.reverb.get(times, outputs)
 
         outputs = outputs.astype("float32") * GENERAL_VOLUME
         self.queue.put_nowait(outputs)

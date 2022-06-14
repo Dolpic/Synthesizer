@@ -5,7 +5,7 @@ class Constant:
     def __init__(self, value):
         self.value = value
 
-    def get(self, input):
+    def get(self, indexes, input):
         if isinstance(self.value, np.ndarray):
             return self.value
         else:
@@ -33,12 +33,12 @@ class Constant_Operation(Constant):
         else:
             self.second = Constant(second)
 
-    def get(self, input):
+    def get(self, indexes, input):
         if self.op == "+":
-            return self.first.get(input) + self.second.get(input)
+            return self.first.get(indexes, input) + self.second.get(indexes, input)
         elif self.op == "-":
-            return self.first.get(input) - self.second.get(input)
+            return self.first.get(indexes, input) - self.second.get(indexes, input)
         elif self.op == "*":
-            return self.first.get(input) * self.second.get(input)
+            return self.first.get(indexes, input) * self.second.get(indexes, input)
         elif self.op == "/":
-            return self.first.get(input) / self.second.get(input)
+            return self.first.get(indexes, input) / self.second.get(indexes, input)

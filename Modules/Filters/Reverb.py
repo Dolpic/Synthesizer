@@ -13,20 +13,21 @@ class Reverb(Module):
 
         self.reverbs = []
 
-    def get(self, input):
+    def get(self, indexes, input):
         result = input
         to_remove = []
 
         for entry in self.reverbs:
             entry["delay"] -= len(input)
             if entry["delay"] <= 0:
-                result += entry["data"] * np.maximum(1 - self.dampening.get(input), 0)
+                result += entry["data"] * np.maximum(1 - self.dampening.get(indexes, input), 0)
                 to_remove.append(entry)
 
         if not self._is_data_inaudible(input):
-            self.reverbs.append(
-                {"delay": self.delay.get(input)[0] * SAMPLING_FREQUENCY, "data": input}
-            )
+            self.reverbs.append({
+                "delay": self.delay.get(indexes, input)[0] * SAMPLING_FREQUENCY, 
+                "data": input
+            })
 
         for x in to_remove:
             self.reverbs.remove(x)

@@ -9,35 +9,22 @@ from Modules.Constant import Constant
 class ADSR(Module):
     def __init__(
         self,
-        attack_time,
-        attack_func,
-        decay_time,
-        decay_func,
+        attack_time, attack_func,
+        decay_time, decay_func,
         sustain_func,
-        release_time,
-        release_func,
+        release_time, release_func,
     ):
-        super().__init__()
-
         (
-            self.attack_time,
-            self.attack_func,
-            self.decay_time,
-            self.decay_func,
-            self.sustain_func,
-            self.release_time,
-            self.release_func,
-        ) = self._param_to_modules(
-            [
-                attack_time,
-                attack_func,
-                decay_time,
-                decay_func,
-                sustain_func,
-                release_time,
-                release_func,
-            ]
-        )
+        self.a_time, self.a_func,
+        self.d_time, self.d_func,
+        self.s_func,
+        self.r_time, self.r_func,
+        ) = self._param_to_modules([
+            attack_time, attack_func,
+            decay_time, decay_func,
+            sustain_func,
+            release_time, release_func
+        ])
 
         self.status = {}
         self.previous_freq = []
@@ -47,7 +34,7 @@ class ADSR(Module):
         self.status[freq]["func"] = copy.deepcopy(func)
         self.status[freq]["remaining_samples"] = nb_samples * SAMPLING_FREQUENCY
 
-    def get(self, frequencies):
+    def get(self, indexes, frequencies):
         result = []
         times = self._get_next_times(SAMPLES_PER_FRAME)
 
@@ -55,8 +42,8 @@ class ADSR(Module):
             if freq not in self.previous_freq:
                 self.status[freq] = {
                     "state": "attack",
-                    "func": copy.deepcopy(self.attack_func),
-                    "remaining_samples": self.attack_time.get(times)[0]
+                    "func": copy.deepcopy(self.a_func),
+                    "remaining_samples": self.a_time.get(indexes, indexes)[0]
                     * SAMPLING_FREQUENCY,
                     "amp": self._param_to_modules([amp])[0],
                 }
@@ -64,22 +51,22 @@ class ADSR(Module):
         to_delete = []
         for freq, elem in self.status.items():
             elem["remaining_samples"] -= SAMPLES_PER_FRAME
-            amp_mult = elem["func"].get(times)
-            amp = elem["amp"].get(times)
+            amp_mult = elem["func"].get(indexes, indexes)
+            amp = elem["amp"].get(indexes, indexes)
 
             if freq not in frequencies and elem["state"] != "release":
                 self._set_entry(
-                    freq, "release", self.release_func, self.release_time.get(times)[0]
+                    freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0]
                 )
 
             elif elem["remaining_samples"] <= 0:
 
                 if elem["state"] == "attack":
                     self._set_entry(
-                        freq, "decay", self.decay_func, self.decay_time.get(times)[0]
+                        freq, "decay", self.d_func, self.d_time.get(indexes, indexes)[0]
                     )
                 elif elem["state"] == "decay":
-                    self._set_entry(freq, "sustain", self.sustain_func, math.inf)
+                    self._set_entry(freq, "sustain", self.s_func, math.inf)
                 elif elem["state"] == "release":
                     to_delete.append(freq)
 

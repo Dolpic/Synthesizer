@@ -14,35 +14,32 @@ class Oscillator(Module):
 
 class Sine(Oscillator):
     def __init__(self, freq=0, amp=1, offset=0):
-        super().__init__()
         self.set(freq=freq, amp=amp, offset=offset)
 
-    def get(self, x):
-        return np.sin(2 * np.pi * self.freq.get(x) * x) * self.amp.get(
-            x
-        ) + self.offset.get(x)
+    def get(self, indexes, input):
+        return np.sin(2 * np.pi * self.freq.get(indexes, input) * indexes) * self.amp.get(
+            indexes, input
+        ) + self.offset.get(indexes, input)
 
 
 class Square(Oscillator):
     def __init__(self, freq=0, amp=1, duty=0.5, offset=0):
-        super().__init__()
         self.set(freq=freq, amp=amp, offset=offset, duty=duty)
 
-    def get(self, x):
+    def get(self, indexes, input):
         return signal.square(
-            2 * np.pi * self.freq.get(x) * x, duty=self.duty.get(x)
-        ) * self.amp.get(x) + self.offset.get(x)
+            2 * np.pi * self.freq.get(indexes, input) * indexes, duty=self.duty.get(indexes, input)
+        ) * self.amp.get(indexes, input) + self.offset.get(indexes, input)
 
 
 class Sawtooth(Oscillator):
     def __init__(self, freq=0, amp=1, width=0, offset=0):
-        super().__init__()
         self.set(freq=freq, amp=amp, offset=offset, duty=width)
 
-    def get(self, x):
+    def get(self, indexes, input):
         return signal.sawtooth(
-            2 * np.pi * self.freq.get(x) * x, self.duty.get(x)
-        ) * self.amp.get(x) + self.offset.get(x)
+            2 * np.pi * self.freq.get(indexes, input) * indexes, self.duty.get(indexes, input)
+        ) * self.amp.get(indexes, input) + self.offset.get(indexes, input)
 
 
 class Triangle(Sawtooth):
