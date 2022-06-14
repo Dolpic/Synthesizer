@@ -11,6 +11,8 @@ from Modules.Oscillators import *
 from Modules.Filters.Biquad.LowPass import LowPass
 from Modules.Filters.Biquad.HighPass import HighPass
 from Modules.Filters.Reverb import *
+from Modules.ADSR import *
+from Modules.Linear import *
 
 class Synthesizer:
     def __init__(self, queue):
@@ -26,6 +28,13 @@ class Synthesizer:
         self.sine = Sine()
         self.square = Square()
         self.saw = Sawtooth()
+
+        self.adsr = ADSR(
+            0.1, Linear(0 , 1  , 0.1), 
+            0.1, Linear(1 , 0.3, 0.1), 
+            0.3, 
+            2, Linear(0.3 , 0, 2)
+        )
 
     def run(self):
         input_device = pygame.midi.Input(INPUT_MIDI_DEVICE)
@@ -54,15 +63,17 @@ class Synthesizer:
     def frequencies_to_sound(self, times, frequencies):
         outputs = np.zeros(len(times))
 
+        frequencies = self.adsr.get(frequencies)
+
         # Time : 1e-06
         for freq, amp in frequencies:
             outputs += self.sine.set(freq, amp=amp).get(times)
-            outputs += self.square.set(freq*2, amp=amp/2).get(times)
+            #outputs += self.square.set(freq*2, amp=amp/2).get(times)
             outputs += self.saw.set(freq*3, amp=amp/3).get(times)
 
         outputs = self.lowPass.get(outputs)
         outputs = self.highPass.get(outputs)
-        outputs = self.reverb.get(outputs)
+        #outputs = self.reverb.get(outputs)
 
         outputs = outputs.astype('float32') * GENERAL_VOLUME*0.5
         self.queue.put_nowait(outputs)
