@@ -1,6 +1,6 @@
-from parameters import *
 import numpy as np
-from Modules.Module import *
+from parameters import SAMPLING_FREQUENCY
+from Modules.Module import Module
 
 
 class Reverb(Module):
@@ -8,7 +8,7 @@ class Reverb(Module):
 
     def __init__(self, delay, dampening=0.5):
         params = self._param_to_modules([delay, dampening])
-        self.delay     = params[0]
+        self.delay = params[0]
         self.dampening = params[1]
 
         self.reverbs = []
@@ -19,15 +19,14 @@ class Reverb(Module):
 
         for entry in self.reverbs:
             entry["delay"] -= len(input)
-            if(entry["delay"] <= 0):
-                result += entry["data"] * np.maximum(1-self.dampening.get(input), 0)
+            if entry["delay"] <= 0:
+                result += entry["data"] * np.maximum(1 - self.dampening.get(input), 0)
                 to_remove.append(entry)
 
         if not self._is_data_inaudible(input):
-            self.reverbs.append({
-                "delay": self.delay.get(input)[0]*SAMPLING_FREQUENCY,
-                "data": input
-            })
+            self.reverbs.append(
+                {"delay": self.delay.get(input)[0] * SAMPLING_FREQUENCY, "data": input}
+            )
 
         for x in to_remove:
             self.reverbs.remove(x)

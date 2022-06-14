@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from parameters import DEBUG, MIDI_NOTHING
 from MIDI.midi_utils import midi_to_frequency_eqtemp, print_midi
@@ -6,10 +7,23 @@ from MIDI.filters.Envelope import Envelope
 from MIDI.filters.Default import Default
 
 
+def fun(x):
+    return 1 if x < 0.5 else -1
+
+
+def envelope(type):
+    funcs = {
+        "lin": lambda t: (2 * fun(t) * (t - 0.5) + 1) * 0.7,
+        "sq": lambda t: ((2 * (t - 0.5 + fun(t) * 0.5)) ** 2) * 0.7,
+        "exp": lambda t: math.exp(fun(t) * 12 * (t - 0.5)) * 0.7,
+    }
+    return funcs[type]
+
+
 class MidiHandler:
     arp = Arpeggiator()
     default = Default()
-    envelope = Envelope(lambda t: 2*t if t < 0.5 else 2*(1-t), 1.0)  # triagnle envelope
+    envelope = Envelope(envelope("exp"), 1.0)  # triangle envelope
 
     def process(self, input):
         if input.poll():
@@ -19,12 +33,11 @@ class MidiHandler:
         else:
             status, note, velocity = MIDI_NOTHING, MIDI_NOTHING, MIDI_NOTHING
 
-        current_notes = self.apply_filter(status, note, velocity/127)
+        current_notes = self.apply_filter(status, note, velocity / 127)
         return np.asarray(
             [
                 (midi_to_frequency_eqtemp(note), amplitude)
-                for note, amplitude
-                in current_notes
+                for note, amplitude in current_notes
             ]
         )
 

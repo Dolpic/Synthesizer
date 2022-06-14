@@ -1,5 +1,6 @@
 import numpy as np
 from Modules.Constant import Constant
+from parameters import SAMPLING_FREQUENCY
 
 
 class Module:
@@ -16,7 +17,10 @@ class Module:
         return params_array
 
     def _get_next_times(self, input_size):
-        times = np.arange(self.current_sample, self.current_sample+input_size) /SAMPLING_FREQUENCY
+        times = (
+            np.arange(self.current_sample, self.current_sample + input_size)
+            / SAMPLING_FREQUENCY
+        )
         self.current_sample += input_size
         return times
 

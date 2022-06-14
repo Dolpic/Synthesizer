@@ -1,11 +1,9 @@
 import time
-import math
 from parameters import MIDI_DOWN, MIDI_UP
 from MIDI.midi_utils import is_piano_key
 
 
 class Envelope:
-
     def __init__(self, function, max_time):
         self.schedule_list = []
         self.envelope = function

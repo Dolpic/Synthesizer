@@ -2,14 +2,21 @@ import pygame.midi
 import numpy as np
 import sounddevice as sd
 
-from parameters import INPUT_MIDI_DEVICE, GENERAL_VOLUME, OUTPUT_DEVICE, SAMPLING_FREQUENCY, SAMPLES_PER_FRAME
+from parameters import (
+    INPUT_MIDI_DEVICE,
+    GENERAL_VOLUME,
+    OUTPUT_DEVICE,
+    SAMPLING_FREQUENCY,
+    SAMPLES_PER_FRAME,
+)
 from MIDI.MidiHandler import MidiHandler
 from Modules.Oscillators import Sine, Square, Sawtooth
 from Modules.Filters.Biquad.LowPass import LowPass
 from Modules.Filters.Biquad.HighPass import HighPass
 from Modules.Filters.Reverb import Reverb
-from Modules.ADSR import *
-from Modules.Linear import *
+from Modules.ADSR import ADSR
+from Modules.Linear import Linear
+
 
 class Synthesizer:
     def __init__(self, queue):
@@ -27,10 +34,13 @@ class Synthesizer:
         self.saw = Sawtooth()
 
         self.adsr = ADSR(
-            0.1, Linear(0 , 1  , 0.1),
-            0.1, Linear(1 , 0.3, 0.1),
-            0.3,
-            2, Linear(0.3 , 0, 2)
+            attack_time=0.1,
+            attack_func=Linear(0.0, 1.0, 0.1),
+            decay_time=0.1,
+            decay_func=Linear(1.0, 0.3, 0.1),
+            sustain_func=0.3,
+            release_time=2.0,
+            release_func=Linear(0.3, 0.0, 2.0),
         )
 
     def run(self):
@@ -44,11 +54,14 @@ class Synthesizer:
         while is_running:
             # Time : 1e-04
             # t0 = time.time()
-            times = np.arange(current_sample, current_sample+SAMPLES_PER_FRAME) / SAMPLING_FREQUENCY
-            frequencies = midi_handler.process(input_device)
+            times = (
+                np.arange(current_sample, current_sample + SAMPLES_PER_FRAME)
+                / SAMPLING_FREQUENCY
+            )
+            frequencies_amplitudes = midi_handler.process(input_device)
 
             # t1 = time.time()
-            right, left = self.frequencies_to_sound(times, frequencies)
+            right, left = self.frequencies_to_sound(times, frequencies_amplitudes)
             # t2 = time.time()
             # ~0.0001s
             audio_stream.write(np.column_stack((right, left)))
@@ -57,21 +70,21 @@ class Synthesizer:
             # t3 = time.time()
             # print("Max : ", round(SAMPLES_PER_FRAME/SAMPLING_FREQUENCY,5), "sum:",round(t3-t0,5), " | 0-1:",  round(t1-t0,5), "1-2:",round(t2-t1,5),"2-3",round(t3-t2,5))
 
-    def frequencies_to_sound(self, times, frequencies):
+    def frequencies_to_sound(self, times, frequencies_amplitudes):
         outputs = np.zeros(len(times))
 
-        frequencies = self.adsr.get(frequencies)
+        frequencies_amplitudes = self.adsr.get(frequencies_amplitudes)
 
         # Time : 1e-06
-        for freq, amp in frequencies:
+        for freq, amp in frequencies_amplitudes:
             outputs += self.sine.set(freq, amp=amp).get(times)
-            #outputs += self.square.set(freq*2, amp=amp/2).get(times)
-            outputs += self.saw.set(freq*3, amp=amp/3).get(times)
+            # outputs += self.square.set(freq*2, amp=amp/2).get(times)
+            outputs += self.saw.set(freq * 3, amp=amp / 3).get(times)
 
         outputs = self.lowPass.get(outputs)
         outputs = self.highPass.get(outputs)
-        #outputs = self.reverb.get(outputs)
+        # outputs = self.reverb.get(outputs)
 
-        outputs = outputs.astype('float32') * GENERAL_VOLUME*0.5
+        outputs = outputs.astype("float32") * GENERAL_VOLUME * 0.5
         self.queue.put_nowait(outputs)
         return outputs, outputs

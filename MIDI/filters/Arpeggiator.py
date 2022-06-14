@@ -4,7 +4,6 @@ from MIDI.midi_utils import is_piano_key
 
 
 class Arpeggiator:
-
     def __init__(self):
         self.schedule_list = []
         self.repeat = True
@@ -24,15 +23,17 @@ class Arpeggiator:
             output.append((goal_note, goal_vel))
             if time.time() >= goal_time:
                 self.unschedule(note)
-                self.schedule(note, vel, (step+1) % len(self.arpege))
+                self.schedule(note, vel, (step + 1) % len(self.arpege))
         return output
 
     def schedule(self, note, velocity, step=0):
         shift_note, shift_time, shift_veloctiy = self.arpege[step]
-        next_time = time.time()+shift_time
-        next_note = note+shift_note
-        next_vel  = velocity+shift_veloctiy
-        self.schedule_list.append( ( (note, velocity), (step, next_time, next_note, next_vel) ) )
+        next_time = time.time() + shift_time
+        next_note = note + shift_note
+        next_vel = velocity + shift_veloctiy
+        self.schedule_list.append(
+            ((note, velocity), (step, next_time, next_note, next_vel))
+        )
 
     def unschedule(self, note):
         self.schedule_list = list(filter(lambda x: x[0][0] != note, self.schedule_list))
