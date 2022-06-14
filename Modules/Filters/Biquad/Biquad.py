@@ -5,14 +5,14 @@ from parameters import *
 from Modules.Module import *
 
 class Biquad(Module):
-    x_prev = 0
-    x_prev_prev = 0
-    y_prev = 0
-    y_prev_prev = 0
-
-    def __init__(self, c):
+    def __init__(self, c=[0,0,0,0,0]):
+        super().__init__()
         l = SAMPLES_PER_FRAME
         self.c = [c[0]*l, c[1]*l, c[2]*l, c[3]*l, c[4]*l]
+        self.x_prev = 0
+        self.x_prev_prev = 0
+        self.y_prev = 0
+        self.y_prev_prev = 0
 
     def _set_f0_Q(self, f0, Q, gain=0):
         params = self._param_to_modules([f0, Q, gain])

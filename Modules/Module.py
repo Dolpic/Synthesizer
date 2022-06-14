@@ -3,6 +3,7 @@ import numpy as np
 from parameters import *
 from Modules.Constant import *
 
+
 class Module:
     def __init__(self):
         self.is_dynamic = False
@@ -25,7 +26,7 @@ class Module:
         self.current_sample = 0
 
     def get(self, input):
-        raise Exception("Function get must be implemented")
+        raise NotImplementedError()
 
     def __add__(self, other) :
         return Module_Operation(self, other, "+")

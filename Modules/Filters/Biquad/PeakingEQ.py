@@ -4,6 +4,7 @@ from Modules.Filters.Biquad.Biquad import *
 
 class PeakingEQ(Biquad):
     def __init__(self, f0, Q, gain):
+        super().__init__()
         super()._set_f0_Q(f0, Q, gain)
     
     def _update_c(self, input):

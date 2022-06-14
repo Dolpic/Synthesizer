@@ -4,6 +4,7 @@ from Modules.Filters.Biquad.Biquad import *
 
 class Notch(Biquad):
     def __init__(self, f0, Q):
+        super().__init__()
         super()._set_f0_Q(f0, Q)
     
     def _update_c(self, input):
