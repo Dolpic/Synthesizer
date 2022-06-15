@@ -1,7 +1,7 @@
 import math
 import numpy as np
 from parameters import DEBUG, MIDI_NOTHING
-from MIDI.midi_utils import midi_to_frequency_eqtemp, print_midi
+from MIDI.midi_utils import midi_to_frequency, print_midi
 from MIDI.filters.Arpeggiator import Arpeggiator
 #from MIDI.filters.Envelope import Envelope
 from MIDI.filters.Default import Default
@@ -10,6 +10,8 @@ from MIDI.filters.Default import Default
 class MidiHandler:
     arp = Arpeggiator()
     default = Default()
+    MEMORY_SIZE = 32
+    memory = [[] for i in range(MEMORY_SIZE)]    #TODO check if gud
 
     def process(self, input):
         if input.poll():
@@ -22,7 +24,7 @@ class MidiHandler:
         current_notes = self.apply_filter(status, note, velocity / 127)
         return np.asarray(
             [
-                (midi_to_frequency_eqtemp(note), amplitude)
+                (midi_to_frequency(note, amplitude, self.memory), amplitude)
                 for note, amplitude in current_notes
             ]
         )
