@@ -28,9 +28,9 @@ class Synthesizer:
 
         self.lowPass = LowPass(1500, 3)
         self.highPass = HighPass(500, 3)
-        self.reverb = Reverb(0.4, 0.7)
+        self.reverb = Reverb(0.05, 0.4)
 
-        self.clip = Clip(Sine(0.5, 1, 1))
+        self.clip = Clip(Sine(0.5, 0.2, 1))
 
         self.sine = Sine()
         self.square = Square()
@@ -62,14 +62,11 @@ class Synthesizer:
         while is_running:
             # Time : 1e-04
             # t0 = time.time()
-            times = (
-                np.arange(current_sample, current_sample + SAMPLES_PER_FRAME)
-                / SAMPLING_FREQUENCY
-            )
-            frequencies_amplitudes = midi_handler.process(input_device)
+            indexes = np.arange(current_sample, current_sample + SAMPLES_PER_FRAME)
+            freq_amp = midi_handler.process(input_device)
 
             # t1 = time.time()
-            right, left = self.frequencies_to_sound(times, frequencies_amplitudes)
+            right, left = self.frequencies_to_sound(indexes, freq_amp)
             # t2 = time.time()
             # ~0.0001s
             audio_stream.write(np.column_stack((right, left)))
@@ -78,21 +75,21 @@ class Synthesizer:
             # t3 = time.time()
             # print("Max : ", round(SAMPLES_PER_FRAME/SAMPLING_FREQUENCY,5), "sum:",round(t3-t0,5), " | 0-1:",  round(t1-t0,5), "1-2:",round(t2-t1,5),"2-3",round(t3-t2,5))
 
-    def frequencies_to_sound(self, times, freq_amp):
-        outputs = np.zeros(len(times))
+    def frequencies_to_sound(self, indexes, freq_amp):
+        outputs = np.zeros(len(indexes))
 
-        #freq_amp = self.adsr.get(times, freq_amp)
+        freq_amp = self.adsr.get(indexes, freq_amp)
 
         # Time : 1e-06
         for freq, amp in freq_amp:
-            outputs += self.sine.set(freq, amp=1).get(times, outputs)
-            #outputs += self.square.set(freq*2, amp=amp/2).get(times, outputs)
-            #outputs += self.saw.set(freq*3, amp=amp/3).get(times, outputs)
+            outputs += self.sine.set(freq, amp=1).get(indexes, outputs)
+            #outputs += self.square.set(freq*2, amp=amp/2).get(indexes, outputs)
+            outputs += self.saw.set(freq*3, amp=amp/3).get(indexes, outputs)
 
-        #outputs = self.lowPass.get(times, outputs)
-        #outputs = self.highPass.get(times, outputs)
-        outputs = self.clip.get(times, outputs)
-        #outputs = self.reverb.get(times, outputs)
+        outputs = self.lowPass.get(indexes, outputs)
+        outputs = self.highPass.get(indexes, outputs)
+        #outputs = self.clip.get(indexes, outputs)
+        outputs = self.reverb.get(indexes, outputs)
 
         outputs = outputs.astype("float32") * GENERAL_VOLUME
         self.queue.put_nowait(outputs)

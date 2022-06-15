@@ -36,7 +36,6 @@ class ADSR(Module):
 
     def get(self, indexes, frequencies):
         result = []
-        times = self._get_next_times(SAMPLES_PER_FRAME)
 
         for freq, amp in frequencies:
             if freq not in self.previous_freq:

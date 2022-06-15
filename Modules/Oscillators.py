@@ -2,7 +2,7 @@ import numpy as np
 from scipy import signal
 
 from Modules.Module import Module
-
+from parameters import *
 
 class Oscillator(Module):
     def set(self, freq, amp=1, offset=0, duty=0.5):
@@ -17,7 +17,7 @@ class Sine(Oscillator):
         self.set(freq=freq, amp=amp, offset=offset)
 
     def get(self, indexes, input):
-        return np.sin(2 * np.pi * self.freq.get(indexes, input) * indexes) * self.amp.get(
+        return np.sin(2 * np.pi * self.freq.get(indexes, input) * indexes/SAMPLING_FREQUENCY) * self.amp.get(
             indexes, input
         ) + self.offset.get(indexes, input)
 
@@ -28,7 +28,7 @@ class Square(Oscillator):
 
     def get(self, indexes, input):
         return signal.square(
-            2 * np.pi * self.freq.get(indexes, input) * indexes, duty=self.duty.get(indexes, input)
+            2 * np.pi * self.freq.get(indexes, input) * indexes/SAMPLING_FREQUENCY, duty=self.duty.get(indexes, input)
         ) * self.amp.get(indexes, input) + self.offset.get(indexes, input)
 
 
@@ -38,7 +38,7 @@ class Sawtooth(Oscillator):
 
     def get(self, indexes, input):
         return signal.sawtooth(
-            2 * np.pi * self.freq.get(indexes, input) * indexes, self.duty.get(indexes, input)
+            2 * np.pi * self.freq.get(indexes, input) * indexes/SAMPLING_FREQUENCY, self.duty.get(indexes, input)
         ) * self.amp.get(indexes, input) + self.offset.get(indexes, input)
 
 
