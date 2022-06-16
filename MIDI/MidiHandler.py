@@ -11,6 +11,7 @@ class MidiHandler:
     arp = Arpeggiator()
     default = Default()
     memory = Memory()
+    past_data = []
 
     def process(self, input):
         if input.poll():
@@ -21,17 +22,18 @@ class MidiHandler:
             status, note, velocity = MIDI_NOTHING, MIDI_NOTHING, MIDI_NOTHING
 
         current_notes = self.apply_filter(status, note, velocity / 127)
-
         result = np.asarray(
             [
-                (midi_to_frequency(note, self.memory), amplitude, note)
-                for note, amplitude in current_notes
+                self.past_data[1][self.past_data[0].index(note_amplitude)] if note_amplitude in self.past_data[0] else
+                (midi_to_frequency(note_amplitude[0], self.memory), note_amplitude[1], note_amplitude[0])
+                for note_amplitude in current_notes
             ]
         )
 
         for freq_and_dev, amp, note in result:
-            if not self.memory.contains(freq_and_dev[1], amp, note):
-                self.memory.add(freq_and_dev[1], amp, note)
+            self.memory.add(freq_and_dev[1], amp, note)
+
+        self.past_data = (current_notes, result)
 
         return np.asarray([(freq_and_dev[0], amp, note) for freq_and_dev, amp, note in result])
 

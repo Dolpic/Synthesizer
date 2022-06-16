@@ -39,7 +39,7 @@ def midi_to_frequency(midi_number, memory):
     if MODE == 2:
         result = just_intonation(midi_number, memory)
     if DEBUG:
-        print("f :", result)
+        print("key in :", midi_number, " => freq :", result[0])
     return result
 
 def equal_temperament(midi_number):
@@ -60,14 +60,11 @@ def pythagorean_tuning(midi_number):
 def just_intonation(midi_number, memory):
 
     # get deviation from ET in cents
-    # maybe in here ref_frequency must equal 1200, because of dark magic
     r = range(len(memory.cells))
     a = np.sum([get_time_weight(midi_number, memory, i) for i in r]) + EPSILON
     b = np.sum([get_time_weight(midi_number, memory, i) * get_time_deviation(midi_number, memory, i) for i in r]) - EPSILON
     dev = -b / a
 
-    if DEBUG:
-        print("dev", dev)
     # obtain corresponding frequency
     sol = equal_temperament(midi_number)[0] * np.power(2, dev/1200)
 

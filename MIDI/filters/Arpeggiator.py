@@ -7,7 +7,7 @@ class Arpeggiator:
     def __init__(self):
         self.schedule_list = []
         self.repeat = True
-        self.arpege = [(0, 0.2, 0), (5, 0.2, -0.1), (9, 0.2, -0.3)]
+        self.arpege = [(0, 0.2, 0), (4, 0.2, -0.3), (7, 0.2, -0.3)]
 
     def process(self, status, note, velocity):
         if is_piano_key(note):
