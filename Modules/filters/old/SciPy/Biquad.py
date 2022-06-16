@@ -1,5 +1,5 @@
 import numpy as np
-from Modules.Filters.filter_utils import *
+from Modules.filters.filter_utils import *
 from Modules.Module import *
 from scipy.signal import iirfilter, sosfilt, sosfilt_zi, lfilter
 

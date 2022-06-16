@@ -1,9 +1,9 @@
 import numpy as np
-from parameters import MIDI_LOWER_KEY, MIDI_HIGHER_KEY
+from MIDI.constants import MIDI_LOWEST_KEY, MIDI_HIGHEST_KEY
 
 
-def is_piano_key(note):
-    return note >= MIDI_LOWER_KEY and note <= MIDI_HIGHER_KEY
+def is_piano_key(key):
+    return key is not None and key >= MIDI_LOWEST_KEY and key <= MIDI_HIGHEST_KEY
 
 
 def print_midi(status, note, velocity):
