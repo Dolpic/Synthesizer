@@ -3,3 +3,4 @@ pygame<2.2
 scipy<1.9
 sounddevice<0.5
 matplotlib<3.6
+mido<1.3

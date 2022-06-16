@@ -1,4 +1,5 @@
-"""This is the default script file, with type hints to make it easy to understand."""
+"""This is the default script file, with type hints to make it easy to understand.
+If you intend to make a custom script, it must provide the two classes below, each with its process() method with the given arguments."""
 
 import MIDI.constants
 import MIDI.filters.Default
@@ -58,7 +59,7 @@ class FreqToAudio:
         # Oscillators
         self.sine = Modules.Oscillators.Sine()
         self.square = Modules.Oscillators.Square()
-        self.saw = Modules.Oscillators.Sine()
+        self.saw = Modules.Oscillators.Sawtooth()
 
         # ADSR
         a_level = 0.9
@@ -90,8 +91,8 @@ class FreqToAudio:
             filled_samples += self.sine.set(freq, amp=amp).get(sample_indexes_to_fill, filled_samples)
             filled_samples += self.saw.set(freq * 3, amp=amp / 3).get(sample_indexes_to_fill, filled_samples)
 
-        filled_samples = self.lowPass.get(sample_indexes_to_fill, filled_samples)
-        filled_samples = self.highPass.get(sample_indexes_to_fill, filled_samples)
-        filled_samples = self.reverb.get(sample_indexes_to_fill, filled_samples)
+        # filled_samples = self.lowPass.get(sample_indexes_to_fill, filled_samples)
+        # filled_samples = self.highPass.get(sample_indexes_to_fill, filled_samples)
+        # filled_samples = self.reverb.get(sample_indexes_to_fill, filled_samples)
 
         return filled_samples, filled_samples  # This example is mono...

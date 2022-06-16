@@ -1,6 +1,6 @@
 import numpy as np
 from MIDI.constants import MIDI_UP, MIDI_DOWN
-from MIDI.utils import is_piano_key
+from MIDI.utils import is_piano_key, parse_status
 
 
 class Default:
@@ -10,6 +10,8 @@ class Default:
         self.notes = np.empty(0)
 
     def process(self, status, note, velocity):
+        status, channel = parse_status(status)
+
         if is_piano_key(note):
             if status == MIDI_DOWN:
                 self.keys_down[note] = velocity

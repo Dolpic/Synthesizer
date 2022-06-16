@@ -1,6 +1,6 @@
 # Status
-MIDI_DOWN = 144
-MIDI_UP = 128
+MIDI_DOWN = 0x90
+MIDI_UP = 0x80
 
 # Keys
 MIDI_LOWEST_KEY = 0

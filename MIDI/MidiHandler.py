@@ -17,7 +17,8 @@ class MidiHandler:
 
     def process(self, input):
         if input.poll():
-            status, key, velocity, _ = input.read(1)[0][0]
+            list_of_one_midi_msg = input.read(1)  # format is [[[status, data1, data2, data3], timestamp]]
+            status, key, velocity, _ = list_of_one_midi_msg[0][0]
 
             if DEBUG:
                 print_midi(status, key, velocity)
