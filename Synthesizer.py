@@ -10,7 +10,7 @@ from parameters import (
     SAMPLES_PER_FRAME,
 )
 from MIDI.MidiHandler import MidiHandler
-from Modules.Oscillators import Sine, Square, Sawtooth
+from Modules.Oscillators import Sine, Square, Sawtooth, WhiteNoise
 from Modules.Filters.Biquad.LowPass import LowPass
 from Modules.Filters.Biquad.HighPass import HighPass
 from Modules.Filters.Reverb import Reverb
@@ -39,6 +39,8 @@ class Synthesizer:
         self.sine = Sine()
         self.square = Square()
         self.saw = Sine()
+
+        self.white = WhiteNoise()
 
         a_level = 0.9
         a = 3
@@ -82,20 +84,21 @@ class Synthesizer:
     def frequencies_to_sound(self, indexes, freq_amp):
         outputs = np.zeros(len(indexes))
 
-        freq_amp = Resonator(0.7, freq_add=2, max=5).get(indexes, freq_amp)
-        freq_amp = self.adsr.get(indexes, freq_amp)
+        #freq_amp = Resonator(0.7, freq_add=2, max=5).get(indexes, freq_amp)
+        #freq_amp = self.adsr.get(indexes, freq_amp)
 
         # Time : 1e-06
         for freq, amp in freq_amp:
             if freq >= NYQUIST_FREQUENCY : continue # Prevent aliasing
-            outputs += self.sine.set(freq, amp=amp).get(indexes, outputs)
+            outputs += self.white.get(freq, amp)
+            #outputs += self.sine.set(freq, amp=amp).get(indexes, outputs)
             #outputs += self.square.set(freq*2, amp=amp/2).get(indexes, outputs)
-            outputs += self.saw.set(freq*3, amp=amp/3).get(indexes, outputs)
+            #outputs += self.saw.set(freq*3, amp=amp/3).get(indexes, outputs)
 
-        outputs = self.lowPass.get(indexes, outputs)
-        outputs = self.highPass.get(indexes, outputs)
+        #outputs = self.lowPass.get(indexes, outputs)
+        #outputs = self.highPass.get(indexes, outputs)
         #outputs = self.clip.get(indexes, outputs)
-        outputs = self.reverb.get(indexes, outputs)
+        #outputs = self.reverb.get(indexes, outputs)
 
         outputs = outputs.astype("float32") * GENERAL_VOLUME
         self.queue.put_nowait(outputs)

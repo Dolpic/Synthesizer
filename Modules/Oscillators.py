@@ -41,6 +41,12 @@ class Sawtooth(Oscillator):
             2 * np.pi * self.freq.get(indexes, input) * indexes/SAMPLING_FREQUENCY, self.duty.get(indexes, input)
         ) * self.amp.get(indexes, input) + self.offset.get(indexes, input)
 
+class WhiteNoise(Oscillator):
+    def __init__(self):
+        pass
+
+    def get(self, indexes, input):
+        return np.random.random(size=SAMPLES_PER_FRAME)
 
 class Triangle(Sawtooth):
     def __init__(self, freq=0, amp=1, offset=0):
