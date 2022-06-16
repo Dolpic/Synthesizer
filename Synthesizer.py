@@ -17,6 +17,7 @@ from Modules.Filters.Reverb import Reverb
 from Modules.ADSR import ADSR
 from Modules.Linear import Linear
 from Modules.Filters.Distortion.Clip import *
+from Modules.Filters.Resonator import *
 
 
 class Synthesizer:
@@ -26,21 +27,24 @@ class Synthesizer:
         sd.default.samplerate = SAMPLING_FREQUENCY
         self.queue = queue
 
-        self.lowPass = LowPass(1500, 3)
+        self.lowPass = LowPass(Sine(2, 1100, 1500), 3)
         self.highPass = HighPass(500, 3)
         self.reverb = Reverb(0.05, 0.4)
 
-        self.clip = Clip(Sine(0.5, 0.2, 1))
+        #self.clip = Clip(Sine(0.5, 1, 1.5))
+        #self.clip = Clip(0.5)
+
+        self.resonator = Resonator(1/3, 0.5)
 
         self.sine = Sine()
         self.square = Square()
         self.saw = Sine()
 
         a_level = 0.9
-        a = 0.1
+        a = 3
         d = 0.05
         s = 0.8
-        r = 0.05
+        r = 0.4
         self.adsr = ADSR(
             attack_time=a,
             attack_func=Linear(0.0, a_level, a),
@@ -78,11 +82,13 @@ class Synthesizer:
     def frequencies_to_sound(self, indexes, freq_amp):
         outputs = np.zeros(len(indexes))
 
+        freq_amp = Resonator(0.7, freq_add=2, max=5).get(indexes, freq_amp)
         freq_amp = self.adsr.get(indexes, freq_amp)
 
         # Time : 1e-06
         for freq, amp in freq_amp:
-            outputs += self.sine.set(freq, amp=1).get(indexes, outputs)
+            if freq >= NYQUIST_FREQUENCY : continue # Prevent aliasing
+            outputs += self.sine.set(freq, amp=amp).get(indexes, outputs)
             #outputs += self.square.set(freq*2, amp=amp/2).get(indexes, outputs)
             outputs += self.saw.set(freq*3, amp=amp/3).get(indexes, outputs)
 

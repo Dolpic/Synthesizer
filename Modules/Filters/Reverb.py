@@ -7,10 +7,7 @@ class Reverb(Module):
     audible_limit = 0.001
 
     def __init__(self, delay, dampening=0.5):
-        params = self._param_to_modules([delay, dampening])
-        self.delay = params[0]
-        self.dampening = params[1]
-
+        self.delay, self.dampening = self._param_to_modules([delay, dampening])
         self.reverbs = []
 
     def get(self, indexes, input):

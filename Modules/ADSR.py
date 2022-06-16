@@ -34,16 +34,16 @@ class ADSR(Module):
         self.status[freq]["func"] = copy.deepcopy(func)
         self.status[freq]["remaining_samples"] = nb_samples * SAMPLING_FREQUENCY
 
-    def get(self, indexes, frequencies):
+    def get(self, indexes, freq_amp):
+        frequencies = list(zip(*freq_amp))[0] if len(list(zip(*freq_amp))) != 0 else []
         result = []
 
-        for freq, amp in frequencies:
+        for freq, amp in freq_amp:
             if freq not in self.previous_freq:
                 self.status[freq] = {
                     "state": "attack",
                     "func": copy.deepcopy(self.a_func),
-                    "remaining_samples": self.a_time.get(indexes, indexes)[0]
-                    * SAMPLING_FREQUENCY,
+                    "remaining_samples": self.a_time.get(indexes, indexes)[0] * SAMPLING_FREQUENCY,
                     "amp": self._param_to_modules([amp])[0],
                 }
 
@@ -54,22 +54,17 @@ class ADSR(Module):
             amp = elem["amp"].get(indexes, indexes)
 
             if freq not in frequencies and elem["state"] != "release":
-                self._set_entry(
-                    freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0]
-                )
+                self._set_entry(freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0])
 
             elif elem["remaining_samples"] <= 0:
-
                 if elem["state"] == "attack":
-                    self._set_entry(
-                        freq, "decay", self.d_func, self.d_time.get(indexes, indexes)[0]
-                    )
+                    self._set_entry(freq, "decay", self.d_func, self.d_time.get(indexes, indexes)[0])
                 elif elem["state"] == "decay":
                     self._set_entry(freq, "sustain", self.s_func, math.inf)
                 elif elem["state"] == "release":
                     to_delete.append(freq)
 
-            result.append((freq, Constant(amp * amp_mult)))
+            result.append([freq, amp * amp_mult])
 
         for cur in to_delete:
             del self.status[cur]
