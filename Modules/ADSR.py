@@ -37,7 +37,7 @@ class ADSR(Module):
     def get(self, indexes, frequencies):
         result = []
 
-        for freq, amp in frequencies:
+        for freq, amp, _ in frequencies:
             if freq not in self.previous_freq:
                 self.status[freq] = {
                     "state": "attack",

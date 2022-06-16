@@ -5,13 +5,12 @@ from MIDI.midi_utils import midi_to_frequency, print_midi
 from MIDI.filters.Arpeggiator import Arpeggiator
 #from MIDI.filters.Envelope import Envelope
 from MIDI.filters.Default import Default
-
+from MIDI.Memory import *
 
 class MidiHandler:
     arp = Arpeggiator()
     default = Default()
-    MEMORY_SIZE = 32
-    memory = [[] for i in range(MEMORY_SIZE)]    #TODO check if gud
+    memory = Memory()
 
     def process(self, input):
         if input.poll():
@@ -22,12 +21,19 @@ class MidiHandler:
             status, note, velocity = MIDI_NOTHING, MIDI_NOTHING, MIDI_NOTHING
 
         current_notes = self.apply_filter(status, note, velocity / 127)
-        return np.asarray(
+
+        result = np.asarray(
             [
-                (midi_to_frequency(note, amplitude, self.memory), amplitude)
+                (midi_to_frequency(note, self.memory), amplitude, note)
                 for note, amplitude in current_notes
             ]
         )
+
+        for freq_and_dev, amp, note in result:
+            if not self.memory.contains(freq_and_dev[1], amp, note):
+                self.memory.add(freq_and_dev[1], amp, note)
+
+        return np.asarray([(freq_and_dev[0], amp, note) for freq_and_dev, amp, note in result])
 
     def apply_filter(self, status, note, velocity):
         return self.default.process(status, note, velocity)

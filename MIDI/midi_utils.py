@@ -30,14 +30,14 @@ def print_midi(status, note, velocity):
     print(f"status:{status}, note:{note}, velocity:{velocity}")
 
 
-def midi_to_frequency(midi_number, amplitude, memory):
+def midi_to_frequency(midi_number, memory):
     result = 0
     if MODE == 0:
         result = equal_temperament(midi_number)
     if MODE == 1:
         result = pythagorean_tuning(midi_number)
     if MODE == 2:
-        result = just_intonation(midi_number, amplitude, memory)
+        result = just_intonation(midi_number, memory)
     if DEBUG:
         print("f :", result)
     return result
@@ -45,7 +45,7 @@ def midi_to_frequency(midi_number, amplitude, memory):
 def equal_temperament(midi_number):
     return (
         np.power(OCTAVE_FREQUENCY_RATIO, (midi_number - REF_NOTE) / NB_NOTES_IN_SCALE)
-        * REF_FREQUENCY
+        * REF_FREQUENCY, 0
     )
 
 def pythagorean_tuning(midi_number):
@@ -54,53 +54,46 @@ def pythagorean_tuning(midi_number):
     return (
         np.power(OCTAVE_FREQUENCY_RATIO, octave)
         * (OCTAVE_FREQUENCY_RATIO*PY_RATIOS[note])
-        * REF_FREQUENCY
+        * REF_FREQUENCY, 0
     )
 
-# memory : contains previously played notes in form [[freq1,volume1,end_time1],[freq2,volume2,end_time2],...]
-def just_intonation(midi_number, amplitude, memory): #fixme : memory filled at each frame instead of rising edge
+def just_intonation(midi_number, memory):
 
     # get deviation from ET in cents
     # maybe in here ref_frequency must equal 1200, because of dark magic
-    a = np.sum([get_time_weight(midi_number, m) for m in memory]) + EPSILON
-    b = np.sum([get_time_weight(midi_number, m) * get_time_deviation(midi_number, m) for m in memory]) - EPSILON * REF_FREQUENCY
-    c = np.sum( [get_time_weight(midi_number, m) * get_time_deviation(midi_number, m) * get_time_deviation(midi_number, m) for m in memory]) + EPSILON * REF_FREQUENCY * REF_FREQUENCY
-
+    r = range(len(memory.cells))
+    a = np.sum([get_time_weight(midi_number, memory, i) for i in r]) + EPSILON
+    b = np.sum([get_time_weight(midi_number, memory, i) * get_time_deviation(midi_number, memory, i) for i in r]) - EPSILON
     dev = -b / a
-    loss = 0.5 * (c - b * dev)
 
+    if DEBUG:
+        print("dev", dev)
     # obtain corresponding frequency
-    sol = equal_temperament(midi_number) * np.power(2, dev/1200)
-    # store in memory //TODO VOLUME IN MEMory
-    memory = [[sol, dev, loss]] + memory[:-1]
-    return sol
+    sol = equal_temperament(midi_number)[0] * np.power(2, dev/1200)
 
-def get_weight(key1, key2):
-    k = key2[0] - key1[0]
-    o = 1 + int(np.abs(k) / 12)
-    v = key1[1] + key2[1]
-    i = int(np.abs(k) % len(JI_WEIGHTS))
-    return JI_WEIGHTS[i] / o * np.power(1.2, v)
+    # c = np.sum([get_time_weight(midi_number, memory, i) * get_time_deviation(midi_number, memory, i) * get_time_deviation(midi_number, memory, i) for i in range(memory)]) + EPSILON * REF_FREQUENCY * REF_FREQUENCY
+    # loss = 0.5 * (c - b * dev)
 
+    return sol, dev
 
+# a key is a tuple note + volume
 def get_deviation(key1, key2):
-    k = key2[0] - key1[0]
+    k = key2 - key1
     i = int(np.abs(k) % (len(JI_WEIGHTS) - 1))
     return np.sign(k) * JI_PITCH_DEVIATIONS[i]
 
 
-def get_time_weight(key1, memory_cell):
-    key2 = memory_cell[1]
-    time = memory_cell[2]
-    k = key2[0] - key1[0]
+def get_time_deviation(key1, memory, index):
+    return get_deviation(key1, memory.cells[index][2]) - memory.cells[index][0]
+
+
+def get_time_weight(key1, memory, index):
+    _, vol, key2 = memory.cells[index]
+    k = key2 - key1
     o = 1 + int(np.abs(k) / 12)
-    v = key1[1] + key2[1]
     i = int(np.abs(k) % len(JI_WEIGHTS))
-    w = JI_WEIGHTS[i] / o * np.power(1.2, v)
-    return np.exp(-time / JI_CHARACTERISTIC_TIME_SCALE) * w
+    w = JI_WEIGHTS[i] / o * np.power(1.2, vol)
+    return np.exp(-index / JI_CHARACTERISTIC_TIME_SCALE) * w
 
-
-def get_time_deviation(key1, memory_cell):
-    return get_deviation(key1, memory_cell[1]) - memory_cell[0]
 
 
