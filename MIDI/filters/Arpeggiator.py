@@ -1,15 +1,17 @@
 import time
 from MIDI.constants import MIDI_UP, MIDI_DOWN
-from MIDI.utils import is_piano_key
+from MIDI.utils import is_piano_key, parse_status
 
 
 class Arpeggiator:
     def __init__(self):
         self.schedule_list = []
         self.repeat = True
-        self.arpege = [(0, 0.2, 0), (5, 0.2, -0.1), (9, 0.2, -0.3)]
+        self.arpege = [(0, 0.2, 0), (4, 0.2, -0.3), (7, 0.2, -0.3)]
 
     def process(self, status, note, velocity):
+        status, channel = parse_status(status)
+
         if is_piano_key(note):
             if status == MIDI_DOWN:
                 self.schedule(note, velocity)

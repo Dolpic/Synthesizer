@@ -1,19 +1,24 @@
-from multiprocessing import Queue, Process
 from Synthesizer import Synthesizer
+from FilePlayer import FilePlayer
 from GUI import GUI
+
 from utils import show_peripherals
 import current_script
 
+import pygame.midi
+import mido
 import argparse
+from multiprocessing import Queue, Process
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Synthesize some sounds with a script (or not).")
-    parser.add_argument("-s", type=str, default=None)
+    parser.add_argument("-s", type=str, default=None, metavar="SCRIPT", help="A script to customize the synthesis. Refer to current_script.py for an example.")
+    parser.add_argument("-m", type=str, default=None, metavar="MIDI_FILE", help="A midi file to play along with you.")
     args = vars(parser.parse_args())
 
-    # Allow customization
+    # Allow customization of the script
     if args["s"]:
         with open(args["s"], "r") as script:
             exec(script.read(), globals())
@@ -28,9 +33,21 @@ if __name__ == "__main__":
     current_script.miditofreq = current_script.MidiToFreq()
     current_script.freqtoaudio = current_script.FreqToAudio()
 
+    # Check if midi file is supplied
+    pygame.midi.init()
+    mido.set_backend('mido.backends.pygame')
+
+    if args["m"]:
+        file_player = FilePlayer(args["m"])
+        file_player_proc = Process(target=file_player.run)
+
     queue = Queue()
     synth = Synthesizer(queue)
     gui = GUI(queue)
     proc = Process(target=gui.run).start()
     show_peripherals()
+
+    if args["m"]:
+        file_player_proc.start()
+
     synth.run()
