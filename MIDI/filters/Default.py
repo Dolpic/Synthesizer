@@ -1,6 +1,6 @@
 import numpy as np
-from parameters import MIDI_DOWN, MIDI_UP
-from MIDI.midi_utils import is_piano_key
+from MIDI.constants import MIDI_UP, MIDI_DOWN
+from MIDI.utils import is_piano_key
 
 
 class Default:

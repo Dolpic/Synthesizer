@@ -1,9 +1,9 @@
 import numpy as np
 from parameters import SAMPLING_FREQUENCY
-from Modules.Filters.Biquad.Biquad import Biquad
+from Modules.filters.Biquad.Biquad import Biquad
 
 
-class HighShelf(Biquad):
+class PeakingEQ(Biquad):
     def __init__(self, f0, Q, gain):
         super().__init__()
         super()._set_f0_Q(f0, Q, gain)
@@ -14,12 +14,11 @@ class HighShelf(Biquad):
         A = 10 ** (self.gain.get(indexes, input) / 40)
 
         cos_w0 = np.cos(w0)
-        A_sqrt = np.sqrt(A)
-        a0 = (A + 1) - (A - 1) * cos_w0 + 2 * A_sqrt * alpha
-        a1 = 2 * ((A - 1) - (A + 1) * cos_w0)
-        a2 = (A + 1) - (A - 1) * cos_w0 - 2 * A_sqrt * alpha
-        b0 = A * ((A + 1) + (A - 1) * cos_w0 + 2 * A_sqrt * alpha)
-        b1 = -2 * A * ((A - 1) + (A + 1) * cos_w0)
-        b2 = A * ((A + 1) + (A - 1) * cos_w0 - 2 * A_sqrt * alpha)
+        a0 = 1 + alpha / A
+        a1 = -2 * cos_w0
+        a2 = 1 - alpha / A
+        b0 = 1 + alpha * A
+        b1 = -2 * cos_w0
+        b2 = 1 - alpha * A
 
         self.c = np.array([b0, b1, b2, a1, a2]) / a0
