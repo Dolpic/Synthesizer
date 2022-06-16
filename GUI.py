@@ -13,7 +13,7 @@ class GUI:
         fig = Figure()
         self.ax = fig.add_subplot(211)
         self.ax2 = fig.add_subplot(212)
-        self.ax.set_ylim(-200, 0)
+        self.ax.set_ylim(-100, 0)
         # self.ax.get_yaxis().set_visible(False)
         # self.ax.set_xscale('log')
         # self.ax.set_xlim(20, 20000)

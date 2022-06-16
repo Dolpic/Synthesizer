@@ -1,6 +1,6 @@
 import numpy as np
 from parameters import SAMPLING_FREQUENCY
-from Modules.Filters.Biquad.Biquad import Biquad
+from Modules.filters.Biquad.Biquad import Biquad
 
 
 class LowShelf(Biquad):

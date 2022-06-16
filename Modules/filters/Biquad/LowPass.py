@@ -1,9 +1,9 @@
 import numpy as np
 from parameters import SAMPLING_FREQUENCY
-from Modules.Filters.Biquad.Biquad import Biquad
+from Modules.filters.Biquad.Biquad import Biquad
 
 
-class HighPass(Biquad):
+class LowPass(Biquad):
     def __init__(self, f0, Q):
         super().__init__()
         super()._set_f0_Q(f0, Q)
@@ -15,8 +15,8 @@ class HighPass(Biquad):
         a0 = 1 + alpha
         a1 = -2 * cos_w0
         a2 = 1 - alpha
-        b0 = alpha
-        b1 = 0
-        b2 = -alpha
+        b0 = (1 - cos_w0) / 2
+        b1 = 1 - cos_w0
+        b2 = (1 - cos_w0) / 2
 
         self.c = np.array([b0, b1, b2, a1, a2]) / a0
