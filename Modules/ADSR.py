@@ -38,7 +38,7 @@ class ADSR(Module):
         frequencies = list(zip(*freq_amp))[0] if len(list(zip(*freq_amp))) != 0 else []
         result = []
 
-        for freq, amp in freq_amp:
+        for freq, amp, _ in freq_amp:
             if freq not in self.previous_freq:
                 self.status[freq] = {
                     "state": "attack",
