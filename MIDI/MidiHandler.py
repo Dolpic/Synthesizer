@@ -49,7 +49,7 @@ class MidiHandler:
 
         self.past_data = (key_amplitude_tuples, result)
 
-        return np.asarray([(freq_and_dev[0], amp, note) for freq_and_dev, amp, note in result])
+        return np.asarray([(freq_and_dev[0], amp) for freq_and_dev, amp, note in result])
 
 
     def apply_filter(self, status, note, velocity):

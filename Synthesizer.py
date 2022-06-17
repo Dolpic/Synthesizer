@@ -13,14 +13,8 @@ import pygame.midi  # noqa:E402
 
 class Synthesizer:
     def __init__(self, queue):
-<<<<<<< HEAD
-        pygame.midi.init()
         sd.default.device = parameters.OUTPUT_DEVICE
         sd.default.samplerate = parameters.SAMPLING_FREQUENCY
-=======
-        sd.default.device = OUTPUT_DEVICE
-        sd.default.samplerate = SAMPLING_FREQUENCY
->>>>>>> 69144a1a7ef92a9b265bc123ff23bdba767dcdfb
         self.queue = queue
 
     def run(self):

@@ -12,7 +12,7 @@ class Linear(Module):
 
     def get(self, indexes, input):
         b = self.start.get(indexes, input)
-        a = (self.stop.get(indexes, input) - self.start.get(indexes, input)) / self.duration.get(indexes, input)
-        xs = np.arange(self.cur_x, self.cur_x + parameters.SAMPLES_PER_FRAME)/parameters.SAMPLING_FREQUENCY
+        a = (self.stop.get(indexes, input) - self.start.get(indexes, input)) / (self.duration.get(indexes, input)*parameters.SAMPLING_FREQUENCY)
+        xs = np.arange(self.cur_x, self.cur_x + parameters.SAMPLES_PER_FRAME)
         self.cur_x += parameters.SAMPLES_PER_FRAME
         return b + xs * a

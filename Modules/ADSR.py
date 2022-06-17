@@ -38,7 +38,7 @@ class ADSR(Module):
         frequencies = list(zip(*freq_amp))[0] if len(list(zip(*freq_amp))) != 0 else []
         result = []
 
-        for freq, amp, _ in freq_amp:
+        for freq, amp in freq_amp:
             if freq not in self.previous_freq:
                 self.status[freq] = {
                     "state": "attack",
@@ -53,11 +53,8 @@ class ADSR(Module):
             amp = elem["amp"].get(indexes, indexes)
             amp_mult = elem["func"].get(indexes, indexes)
 
-            if "interpolation" in elem.keys():
-                amp_mult *= (elem["interpolation"][0]/elem["interpolation"][1])
-
             if freq not in frequencies and elem["state"] != "release":
-                self.status[freq]["interpolation"] = [amp_mult, self.r_func.get(indexes, indexes)]
+                self.status[freq]["interpolation"] = amp_mult / copy.deepcopy(self.r_func).get(indexes, indexes)
                 self._set_entry(freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0])
 
             elif elem["remaining_samples"] <= 0:
@@ -67,6 +64,9 @@ class ADSR(Module):
                     self._set_entry(freq, "sustain", self.s_func, math.inf)
                 elif elem["state"] == "release":
                     to_delete.append(freq)
+
+            if "interpolation" in elem.keys():
+                amp_mult *= elem["interpolation"]
 
             result.append([freq, amp * amp_mult])
 
