@@ -9,22 +9,33 @@ from Modules.Constant import Constant
 class ADSR(Module):
     def __init__(
         self,
-        attack_time, attack_func,
-        decay_time, decay_func,
+        attack_time,
+        attack_func,
+        decay_time,
+        decay_func,
         sustain_func,
-        release_time, release_func,
+        release_time,
+        release_func,
     ):
         (
-        self.a_time, self.a_func,
-        self.d_time, self.d_func,
-        self.s_func,
-        self.r_time, self.r_func,
-        ) = self._param_to_modules([
-            attack_time, attack_func,
-            decay_time, decay_func,
-            sustain_func,
-            release_time, release_func
-        ])
+            self.a_time,
+            self.a_func,
+            self.d_time,
+            self.d_func,
+            self.s_func,
+            self.r_time,
+            self.r_func,
+        ) = self._param_to_modules(
+            [
+                attack_time,
+                attack_func,
+                decay_time,
+                decay_func,
+                sustain_func,
+                release_time,
+                release_func,
+            ]
+        )
 
         self.status = {}
         self.previous_freq = []
@@ -43,7 +54,8 @@ class ADSR(Module):
                 self.status[freq] = {
                     "state": "attack",
                     "func": copy.deepcopy(self.a_func),
-                    "remaining_samples": self.a_time.get(indexes, indexes)[0] * SAMPLING_FREQUENCY,
+                    "remaining_samples": self.a_time.get(indexes, indexes)[0]
+                    * SAMPLING_FREQUENCY,
                     "amp": self._param_to_modules([amp])[0],
                 }
 
@@ -54,12 +66,18 @@ class ADSR(Module):
             amp_mult = elem["func"].get(indexes, indexes)
 
             if freq not in frequencies and elem["state"] != "release":
-                self.status[freq]["interpolation"] = amp_mult / copy.deepcopy(self.r_func).get(indexes, indexes)
-                self._set_entry(freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0])
+                self.status[freq]["interpolation"] = amp_mult / copy.deepcopy(
+                    self.r_func
+                ).get(indexes, indexes)
+                self._set_entry(
+                    freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0]
+                )
 
             elif elem["remaining_samples"] <= 0:
                 if elem["state"] == "attack":
-                    self._set_entry(freq, "decay", self.d_func, self.d_time.get(indexes, indexes)[0])
+                    self._set_entry(
+                        freq, "decay", self.d_func, self.d_time.get(indexes, indexes)[0]
+                    )
                 elif elem["state"] == "decay":
                     self._set_entry(freq, "sustain", self.s_func, math.inf)
                 elif elem["state"] == "release":
