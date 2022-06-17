@@ -1,5 +1,6 @@
 from parameters import DEBUG
 
+
 class Memory:
     def __init__(self, size=4):
         self.cells = []
