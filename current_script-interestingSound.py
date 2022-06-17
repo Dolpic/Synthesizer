@@ -32,7 +32,7 @@ Amplitude = NewType("Amplitude", float)
 # DSP Types
 SampleIndex = NewType("SampleIndex", int)
 RightChannelSampleValue = NewType("RightChannelSampleValue", float)
-LeftChannelSampleValue = NewType("RightChannelSampleValue", float)
+LeftChannelSampleValue = NewType("LeftChannelSampleValue", float)
 
 
 class MidiToFreq:
