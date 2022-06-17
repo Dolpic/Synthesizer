@@ -66,7 +66,7 @@ class ADSR(Module):
                     to_delete.append(freq)
 
             if "interpolation" in elem.keys():
-                amp_mult *= elem["interpolation"]
+                amp_mult = amp_mult * elem["interpolation"]
 
             result.append([freq, amp * amp_mult])
 
