@@ -9,6 +9,7 @@ from MIDI.filters.Arpeggiator import Arpeggiator
 from MIDI.filters.Default import Default
 from MIDI.Memory import Memory
 
+
 class MidiHandler:
     arp = Arpeggiator()
     default = Default()
@@ -51,7 +52,5 @@ class MidiHandler:
 
         return np.asarray([(freq_and_dev[0], amp) for freq_and_dev, amp, note in result])
 
-
     def apply_filter(self, status, note, velocity):
         return self.default.process(status, note, velocity)
-

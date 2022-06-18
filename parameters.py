@@ -4,7 +4,7 @@ PARAMETERS
 """
 
 INPUT_MIDI_DEVICE = 1
-OUTPUT_DEVICE = "pulse" #sd.default.device
+OUTPUT_DEVICE = "pulse" # sd.default.device
 
 DEBUG = False
 SAMPLING_FREQUENCY = 44100

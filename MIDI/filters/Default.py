@@ -9,18 +9,25 @@ class Default:
         self.velocities = np.empty(0)
         self.notes = np.empty(0)
 
+    def pop_key(self, key):
+        try:
+            self.keys_down.pop(key)
+        except KeyError:
+            # May happen when changing keys too fast. Just ignore it. The key is gone anyway.
+            pass
+
     def process(self, status, note, velocity):
         status, channel = parse_status(status)
 
         if is_piano_key(note):
             if status == MIDI_DOWN:
-                self.keys_down[note] = velocity
+                if velocity == 0:
+                    self.pop_key(note)  # fun: https://stackoverflow.com/a/43322203
+                else:
+                    self.keys_down[note] = velocity
+
             elif status == MIDI_UP:
-                try:
-                    self.keys_down.pop(note)
-                except KeyError:
-                    # May happen when changing keys too fast. Just ignore it. The key is gone anyway.
-                    pass
+                self.pop_key(note)
 
         self.velocities = np.asarray(list(self.keys_down.values()), dtype="float32")
         self.notes = np.asarray(list(self.keys_down.keys()), dtype="float32")

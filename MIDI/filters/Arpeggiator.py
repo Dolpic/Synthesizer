@@ -14,7 +14,11 @@ class Arpeggiator:
 
         if is_piano_key(note):
             if status == MIDI_DOWN:
-                self.schedule(note, velocity)
+                if velocity == 0:
+                    self.unschedule(note)
+                else:
+                    self.schedule(note, velocity)
+
             elif status == MIDI_UP:
                 self.unschedule(note)
         return self.get_notes()
