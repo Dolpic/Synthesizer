@@ -52,64 +52,49 @@ class MidiToFreq:
 class FreqToAudio:
     def __init__(self):
         # Filters
-        self.lowPass = Modules.filters.Biquad.LowPass.LowPass(1500, 3)
-        self.highPass = Modules.filters.Biquad.HighPass.HighPass(1000, 3)
-
-        self.reverb = Modules.filters.Reverb.Reverb(0.1, 0.4)
-
-        self.clip = Modules.filters.Distortion.Clip.Clip(
-            Modules.Oscillators.Sine(0.5, 0.2, 1)
-        )
+        self.reverb = Modules.filters.Reverb.Reverb(delay=0.005, dampening=0.3)
 
         # Oscillators
         self.sine = Modules.Oscillators.Sine()
-        self.square = Modules.Oscillators.Square()
-        self.saw = Modules.Oscillators.Sawtooth()
-
-        self.LFO = Modules.Oscillators.Sine()
 
         # ADSR
-        a_level = 0.9
-        a_time = 0.005
-        d_time = 3
-        r_time = 0.1
+        attack_time = 0.005
+        attack_stop_level = 0.9
+        attack_func = Modules.Linear.Linear(start=0, stop=attack_stop_level, duration=attack_time)
+        decay_time = 3
+        decay_func=Modules.Exponential.Exponential(start=attack_stop_level, stop=0, duration=decay_time)
+        release_time = 0.1
+        release_func = Modules.Linear.Linear(attack_stop_level, 0, release_time)
         self.adsr = Modules.ADSR.ADSR(
-            attack_time=a_time,
-            attack_func=Modules.Linear.Linear(0.0, a_level, a_time),
-            decay_time=d_time,
-            decay_func=Modules.Exponential.Exponential(a_level, 0, d_time),
+            attack_time=attack_time, attack_func=attack_func,
+            decay_time=decay_time,   decay_func=decay_func,
             sustain_func=0,
-            release_time=r_time,
-            release_func=Modules.Linear.Linear(a_level, 0, r_time),
+            release_time=release_time, release_func=release_func,
         )
 
-        self.resonator = Modules.filters.Resonator.Resonator(0.9, freq_add=1, max=10)
-
-    def process(
-        self,
-        indexes: NDArray[SampleIndex],
-        freqs_amp: NDArray[Tuple[Frequency, Amplitude]],
-    ) -> Tuple[NDArray[RightChannelSampleValue], NDArray[LeftChannelSampleValue]]:
+    def process(self, indexes, freqs_amps) :
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
 
-        #freqs_amp = self.resonator.get(indexes, freqs_amp)
-        freqs_amp = self.adsr.get(indexes, freqs_amp)
+        # Frequencies filtering - ADSR
+        freqs_amps = self.adsr.get(indexes, freqs_amps)
 
-        for freq, amp in freqs_amp:
+        # Oscillators
+        overtones = [
+            [1, 1],
+            [2, 0.9],
+            [3, 0.15],
+            [4, 0.39],
+            [5, 0.39],
+            [6, 0.1],
+            [7, 0.2],
+            [9, 0.15]
+        ]
+        for freq, amp in freqs_amps:
             if freq > parameters.NYQUIST_FREQUENCY: continue
-            #new_amp = self.LFO.set(0.5, amp=5*amp, offset=amp).get(indexes, output)
-            output += self.sine.set(freq, amp=amp).get(indexes, output)
-            output += self.sine.set(freq*2, amp=amp*0.9).get(indexes, output)
-            output += self.sine.set(freq*3, amp=amp*0.15).get(indexes, output)
-            output += self.sine.set(freq*4, amp=amp*0.39).get(indexes, output)
-            output += self.sine.set(freq*5, amp=amp*0.39).get(indexes, output)
-            output += self.sine.set(freq*6, amp=amp*0.1).get(indexes, output)
-            output += self.sine.set(freq*7, amp=amp*0.2).get(indexes, output)
-            #output += self.saw.set(freq*(5/4), amp=amp*(5/4)).get(indexes, output)
-            #output += self.saw.set(freq*(5/3), amp=amp*(5/3)).get(indexes, output)
+            for over_mult, over_amp in overtones:
+                output += self.sine.set(freq*over_mult, amp=amp*over_amp).get(indexes, output)
 
-        # output = self.lowPass.get(indexes, output)
-        # output = self.highPass.get(indexes, output)
-        # output = self.reverb.get(indexes, output)
+        # Audio filtering
+        output = self.reverb.get(indexes, output)
 
-        return output, output  # This example is mono...
+        return output, output

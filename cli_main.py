@@ -5,6 +5,8 @@ from GUI import GUI
 from utils import show_peripherals
 import current_script
 
+import parameters
+import os
 import pygame.midi
 import mido
 import argparse
@@ -37,8 +39,8 @@ if __name__ == "__main__":
     os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
     sd.default.device = parameters.OUTPUT_DEVICE
     sd.default.samplerate = parameters.SAMPLING_FREQUENCY
-    midi_input = pygame.midi.Input(parameters.INPUT_MIDI_DEVICE)
     pygame.midi.init()
+    midi_input = pygame.midi.Input(parameters.INPUT_MIDI_DEVICE)
     mido.set_backend('mido.backends.pygame')
 
     if args["m"]:
