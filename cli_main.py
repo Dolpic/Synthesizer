@@ -9,6 +9,7 @@ import pygame.midi
 import mido
 import argparse
 from multiprocessing import Queue, Process
+import sounddevice as sd
 
 
 if __name__ == "__main__":
@@ -33,7 +34,10 @@ if __name__ == "__main__":
     current_script.miditofreq = current_script.MidiToFreq()
     current_script.freqtoaudio = current_script.FreqToAudio()
 
-    # Check if midi file is supplied
+    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+    sd.default.device = parameters.OUTPUT_DEVICE
+    sd.default.samplerate = parameters.SAMPLING_FREQUENCY
+    midi_input = pygame.midi.Input(parameters.INPUT_MIDI_DEVICE)
     pygame.midi.init()
     mido.set_backend('mido.backends.pygame')
 
@@ -42,7 +46,7 @@ if __name__ == "__main__":
         file_player_proc = Process(target=file_player.run)
 
     queue = Queue()
-    synth = Synthesizer(queue)
+    synth = Synthesizer(queue, midi_input)
     gui = GUI(queue)
     proc = Process(target=gui.run).start()
     show_peripherals()

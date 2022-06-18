@@ -1,34 +1,32 @@
 import os
 import numpy as np
 import sounddevice as sd
+from pynput.keyboard import Key, Listener
 
 import parameters
 import current_script
 
 from MIDI.MidiHandler import MidiHandler
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame.midi  # noqa:E402
 
-
 class Synthesizer:
-    def __init__(self, queue):
-        sd.default.device = parameters.OUTPUT_DEVICE
-        sd.default.samplerate = parameters.SAMPLING_FREQUENCY
+    def __init__(self, queue, midi_input_device):
         self.queue = queue
+        self.is_running = True
+        self.midi_input = midi_input_device
 
     def run(self):
-        input_device = pygame.midi.Input(parameters.INPUT_MIDI_DEVICE)
+        Listener(on_press=self.on_press).start()
         midi_handler = MidiHandler()
         audio_stream = sd.OutputStream(channels=2)
         audio_stream.start()
-        is_running = True
         current_sample = 0
 
-        while is_running:
+        while self.is_running:
             indexes = np.arange(current_sample, current_sample + parameters.SAMPLES_PER_FRAME)
 
-            freq_amp = midi_handler.process(input_device)
+            freq_amp = midi_handler.process(self.midi_input)
 
             right_samples, left_samples = current_script.freqtoaudio.process(indexes, freq_amp)
 
@@ -39,3 +37,7 @@ class Synthesizer:
 
             audio_stream.write(np.column_stack((right_samples, left_samples)))
             current_sample += parameters.SAMPLES_PER_FRAME
+
+    def on_press(self, key):
+        if key == Key.enter:
+            self.is_running = False

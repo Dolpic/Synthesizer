@@ -105,6 +105,7 @@ class FreqToAudio:
             filled_samples += self.sine.set(freq*5, amp=amp*0.39).get(sample_indexes_to_fill, filled_samples)
             filled_samples += self.sine.set(freq*6, amp=amp*0.1).get(sample_indexes_to_fill, filled_samples)
             filled_samples += self.sine.set(freq*7, amp=amp*0.2).get(sample_indexes_to_fill, filled_samples)
+            filled_samples += self.sine.set(freq*9, amp=amp*0.15).get(sample_indexes_to_fill, filled_samples)
             #filled_samples += self.saw.set(freq*(5/4), amp=amp*(5/4)).get(sample_indexes_to_fill, filled_samples)
             #filled_samples += self.saw.set(freq*(5/3), amp=amp*(5/3)).get(sample_indexes_to_fill, filled_samples)
 

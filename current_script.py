@@ -15,7 +15,7 @@ import Modules.filters.Distortion.Clip
 import Modules.filters.Reverb
 import Modules.filters.Resonator
 
-import numpy
+import numpy as np
 import parameters
 
 from typing import Optional, Tuple, NewType
@@ -87,29 +87,29 @@ class FreqToAudio:
 
     def process(
         self,
-        sample_indexes_to_fill: NDArray[SampleIndex],
-        freqs_to_play: NDArray[Tuple[Frequency, Amplitude]],
+        indexes: NDArray[SampleIndex],
+        freqs_amp: NDArray[Tuple[Frequency, Amplitude]],
     ) -> Tuple[NDArray[RightChannelSampleValue], NDArray[LeftChannelSampleValue]]:
-        filled_samples = numpy.zeros(parameters.SAMPLES_PER_FRAME)
+        output = np.zeros(parameters.SAMPLES_PER_FRAME)
 
-        #freqs_to_play = self.resonator.get(sample_indexes_to_fill, freqs_to_play)
-        freqs_to_play = self.adsr.get(sample_indexes_to_fill, freqs_to_play)
+        #freqs_amp = self.resonator.get(indexes, freqs_amp)
+        freqs_amp = self.adsr.get(indexes, freqs_amp)
 
-        for freq, amp in freqs_to_play:
+        for freq, amp in freqs_amp:
             if freq > parameters.NYQUIST_FREQUENCY: continue
-            #new_amp = self.LFO.set(0.5, amp=5*amp, offset=amp).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq, amp=amp).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq*2, amp=amp*0.9).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq*3, amp=amp*0.15).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq*4, amp=amp*0.39).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq*5, amp=amp*0.39).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq*6, amp=amp*0.1).get(sample_indexes_to_fill, filled_samples)
-            filled_samples += self.sine.set(freq*7, amp=amp*0.2).get(sample_indexes_to_fill, filled_samples)
-            #filled_samples += self.saw.set(freq*(5/4), amp=amp*(5/4)).get(sample_indexes_to_fill, filled_samples)
-            #filled_samples += self.saw.set(freq*(5/3), amp=amp*(5/3)).get(sample_indexes_to_fill, filled_samples)
+            #new_amp = self.LFO.set(0.5, amp=5*amp, offset=amp).get(indexes, output)
+            output += self.sine.set(freq, amp=amp).get(indexes, output)
+            output += self.sine.set(freq*2, amp=amp*0.9).get(indexes, output)
+            output += self.sine.set(freq*3, amp=amp*0.15).get(indexes, output)
+            output += self.sine.set(freq*4, amp=amp*0.39).get(indexes, output)
+            output += self.sine.set(freq*5, amp=amp*0.39).get(indexes, output)
+            output += self.sine.set(freq*6, amp=amp*0.1).get(indexes, output)
+            output += self.sine.set(freq*7, amp=amp*0.2).get(indexes, output)
+            #output += self.saw.set(freq*(5/4), amp=amp*(5/4)).get(indexes, output)
+            #output += self.saw.set(freq*(5/3), amp=amp*(5/3)).get(indexes, output)
 
-        # filled_samples = self.lowPass.get(sample_indexes_to_fill, filled_samples)
-        # filled_samples = self.highPass.get(sample_indexes_to_fill, filled_samples)
-        # filled_samples = self.reverb.get(sample_indexes_to_fill, filled_samples)
+        # output = self.lowPass.get(indexes, output)
+        # output = self.highPass.get(indexes, output)
+        # output = self.reverb.get(indexes, output)
 
-        return filled_samples, filled_samples  # This example is mono...
+        return output, output  # This example is mono...
