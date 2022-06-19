@@ -4,6 +4,20 @@ import math
 from parameters import SAMPLES_PER_FRAME, SAMPLING_FREQUENCY
 from Modules.Module import Module
 
+"""
+Module implementing an exponential function.
+
+This module applies an exponential function on the given indexes.
+The exponential function start at a given value and reaches an end 
+value after a given time in seconds.
+
+Parameters :
+start : starting value of the function
+stop : end value of the function
+duration : duration in seconds to go from the start value to the end value
+
+"""
+
 class Exponential(Module):
 
     exponential_limit = 1/1000

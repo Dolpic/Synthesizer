@@ -1,5 +1,10 @@
 import numpy as np
 
+"""
+Module implementing a constant value.
+
+Usefull for modules arithmetic.
+"""
 
 class Constant:
     def __init__(self, value):

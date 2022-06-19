@@ -2,6 +2,11 @@ import numpy as np
 from Modules.Constant import Constant
 from parameters import SAMPLING_FREQUENCY
 
+"""
+Module base class
+
+Every module must inherit from this class.
+"""
 
 class Module:
     def _param_to_modules(self, params_array):

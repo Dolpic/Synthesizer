@@ -61,6 +61,7 @@ class FreqToAudio:
         self.sine = Modules.Oscillators.Sine()
         self.white = Modules.Oscillators.WhiteNoise()
         self.comb = Modules.filters.Comb.Comb(1, Modules.Oscillators.Sine(1, 20, 20))
+        self.shelf = Modules.filters.Biquad.LowShelf.LowShelf(10000, 100, 50)
 
         # ADSR
         attack_time = 0.05
@@ -90,7 +91,7 @@ class FreqToAudio:
             output += self.white.get(indexes, output)*amp
             
         # There is no filtering of audio signal in this example
-        output = self.comb.get(indexes, output)
+        output = self.shelf.get(indexes, output)
         
         # This example is mono
         return output, output 

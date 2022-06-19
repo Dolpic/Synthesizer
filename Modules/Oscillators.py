@@ -4,6 +4,17 @@ from scipy import signal
 from Modules.Module import Module
 from parameters import *
 
+"""
+Modules implementing Oscillators.
+
+Every oscillator has the following parameters (except from the white noise):
+- freq : The oscillator frequency
+- amp  : The oscillator amplitude
+- offset : The oscillator offset
+- duty/width : Used only in Square/Sawtooth to indicated the width of an oscillation
+
+"""
+
 class Oscillator(Module):
     def set(self, freq, amp=1, offset=0, duty=0.5):
         self.freq, self.amp, self.duty, self.offset = self._param_to_modules(

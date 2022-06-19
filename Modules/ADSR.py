@@ -5,6 +5,34 @@ from parameters import SAMPLES_PER_FRAME, SAMPLING_FREQUENCY
 from Modules.Module import Module
 from Modules.Constant import Constant
 
+"""
+ADSR Enveloppe
+
+Brings an Attack - Decay - Sustain - Release enveloppe to a set of frequencies
+
+When a key is pressed the attack phase begin for the given duration, then the 
+decay phase is played directly after it for the given duration.
+After the decay phase the sustain function is played until the key is released.
+On key release, the release function is player for the given duration.
+
+Parameters :
+attack_time : time in seconds of the attack phase
+attack_func : function used during attack time
+decay_time  : time in seconds of the decay phase
+decay_time  : function used during attack time
+sustain_func : function used during sustain time
+release_time : time in seconds of the release phase
+release_func : function used during release time
+
+Notes :
+To avoid disgracious clicking sound when a key is released before it reaches its 
+sustain state, we implemented an interpolation feature.
+When a key is released, the amplitude of the frequency will follow the release 
+function proportionnaly to its amplitude at the moment of the key release. This
+avoids a jump in the amplitude to the release function without taking into account
+the current frequency amplitude.
+
+"""
 
 class ADSR(Module):
     def __init__(

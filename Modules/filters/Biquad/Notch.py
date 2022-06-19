@@ -2,6 +2,17 @@ import numpy as np
 from parameters import SAMPLING_FREQUENCY
 from Modules.filters.Biquad.Biquad import Biquad
 
+"""
+Notch filter
+
+This filter is a biquad filter with :
+f0 : The frequency to cut
+Q : The width of the cut, smaller Q means a larger cut width in the frequencies
+
+The biquand coefficients are taken from:
+https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html
+
+"""
 
 class Notch(Biquad):
     def __init__(self, f0, Q):

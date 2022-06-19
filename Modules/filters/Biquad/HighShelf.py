@@ -2,6 +2,18 @@ import numpy as np
 from parameters import SAMPLING_FREQUENCY
 from Modules.filters.Biquad.Biquad import Biquad
 
+"""
+HighShelf filter
+
+This filter is a biquad filter with :
+f0 : The frequency from which higher frequencies will receive the full gain
+Q : The force of the filter
+gain : The overall gain
+
+The biquand coefficients are taken from:
+https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html
+
+"""
 
 class HighShelf(Biquad):
     def __init__(self, f0, Q, gain):

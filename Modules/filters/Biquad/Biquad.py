@@ -3,6 +3,25 @@ from parameters import SAMPLES_PER_FRAME
 from Modules.Module import Module
 
 
+"""
+Biquad filter
+
+This class serves as a basis to implement all the Biquad filters family.
+It can be initialized directly with a parameter c, where c = [
+    b0/a0, 
+    b1/a0, 
+    b2/a0, 
+    a1/a0, 
+    a2/a0
+]
+
+The filter is based on the Biquad formula  
+y[n] = c0*x[n] + c1*x[n-1] + c2*x[n-2] - c3*y[n-1] - c4*y[n-2]
+
+Reference :
+https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html
+"""
+
 class Biquad(Module):
     def __init__(self, c=[0, 0, 0, 0, 0]):
         self.c = list(map(lambda c_i: c_i*SAMPLES_PER_FRAME, c))

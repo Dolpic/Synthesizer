@@ -1,5 +1,18 @@
 from Modules.Module import Module
 
+"""
+Resonator filter
+
+This filter add overtones from a base frequency.
+
+Parameters :
+dampening : Multiplicator for each new frequency added
+freq_mult : Each new added frequency will be the previous one multiplied by this factor
+freq_add : Each new added frequency will be the previous one plus this value
+max : Maximum number of new frequencies
+
+"""
+
 class Resonator(Module):
     audible_limit = 0.0001
 

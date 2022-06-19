@@ -2,6 +2,17 @@ import numpy as np
 from parameters import SAMPLING_FREQUENCY
 from Modules.filters.Biquad.Biquad import Biquad
 
+"""
+PeakingEQ filter
+
+This filter is a biquad filter with :
+f0 : The frequency to peak
+Q : The width of the peak, smaller Q means a wider peak in the frequencies
+
+The biquand coefficients are taken from:
+https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html
+
+"""
 
 class PeakingEQ(Biquad):
     def __init__(self, f0, Q, gain):

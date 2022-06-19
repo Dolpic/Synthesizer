@@ -2,6 +2,17 @@ import numpy as np
 from parameters import SAMPLING_FREQUENCY
 from Modules.filters.Biquad.Biquad import Biquad
 
+"""
+Bandpass filter
+
+This filter is a biquad filter with :
+f0 : The middle frequency of the passing band
+Q : The force of the filter
+
+The biquand coefficients are taken from:
+https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html
+
+"""
 
 class BandPass(Biquad):
     def __init__(self, f0, Q):

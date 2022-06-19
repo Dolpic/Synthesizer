@@ -2,6 +2,16 @@ import numpy as np
 from parameters import SAMPLING_FREQUENCY
 from Modules.Module import Module
 
+"""
+Reverb filter
+
+Implements a standard reverb effect.
+
+Parameters ;
+delay : Delay in seconds after which the audio fill be replayed
+dampening : Dampening factor
+
+"""
 
 class Reverb(Module):
     audible_limit = 0.001
