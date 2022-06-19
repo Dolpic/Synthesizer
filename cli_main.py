@@ -1,6 +1,3 @@
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-
 from Synthesizer import Synthesizer
 from FilePlayer import FilePlayer
 from GUI import GUI
@@ -9,11 +6,13 @@ import utils
 import current_script
 
 import parameters
-import pygame.midi
-import mido
 import argparse
 from multiprocessing import Queue, Process
-import sounddevice as sd
+
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import pygame.midi  # noqa:E402
+
 
 if __name__ == "__main__":
 
@@ -42,10 +41,12 @@ if __name__ == "__main__":
     queue = Queue()
     gui = GUI(queue)
     proc = Process(target=gui.run).start()
-    synth = Synthesizer(queue, midi_input)
-    synth.run()
 
+    file_player_proc = None
     if args["m"]:
         file_player = FilePlayer(args["m"])
+        print("jeu")
         file_player_proc = Process(target=file_player.run)
-        file_player_proc.start()
+
+    synth = Synthesizer(queue, midi_input, False, file_player_proc)
+    synth.run()
