@@ -57,32 +57,26 @@ class MidiToFreq:
 
 class FreqToAudio:
     def __init__(self):
+        # Filters
+        self.reverb = Modules.filters.Reverb.Reverb(delay=0.005, dampening=0.25)
+        self.lowpass = Modules.filters.Biquad.LowPass.LowPass(4200, 1.5)  # 4200 is just above the highest frequency a piano can do
+
         # Oscillators
         self.sine = Modules.Oscillators.Sine()
-        self.white = Modules.Oscillators.WhiteNoise()
-        self.comb = Modules.filters.Comb.Comb(1, Modules.Oscillators.Sine(1, 20, 20))
-        self.shelf = Modules.filters.Biquad.LowShelf.LowShelf(10000, 100, 50)
 
         # ADSR
-        attack_time = 0.05
-        attack_stop_level = 0.8
-        attack_func = Modules.Linear.Linear(
-            start=0, stop=attack_stop_level, duration=attack_time
-        )
-        decay_time = attack_time
-        decay_func = Modules.Linear.Linear(
-            start=attack_stop_level, stop=0.7, duration=decay_time
-        )
-        release_time = 0.1
+        attack_time = 0.005
+        attack_stop_level = 0.9
+        attack_func = Modules.Linear.Linear(start=0, stop=attack_stop_level, duration=attack_time)
+        decay_time = 3
+        decay_func = Modules.Exponential.Exponential(start=attack_stop_level, stop=0, duration=decay_time)
+        release_time = 0.2
         release_func = Modules.Linear.Linear(attack_stop_level, 0, release_time)
         self.adsr = Modules.ADSR.ADSR(
-            attack_time=attack_time,
-            attack_func=attack_func,
-            decay_time=decay_time,
-            decay_func=decay_func,
-            sustain_func=0.7,
-            release_time=release_time,
-            release_func=release_func,
+            attack_time=attack_time, attack_func=attack_func,
+            decay_time=decay_time,   decay_func=decay_func,
+            sustain_func=0,
+            release_time=release_time, release_func=release_func,
         )
 
     def process(
@@ -92,18 +86,27 @@ class FreqToAudio:
     ) -> Tuple[NDArray[RightChannelSampleValue], NDArray[LeftChannelSampleValue]]:
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
 
-        # There is no filtering of frequencies and amplitudes in this example
-        # freqs_amps = self.adsr.get(indexes, freqs_amps)
+        # Frequencies filtering - ADSR
+        freqs_amps = self.adsr.get(indexes, freqs_amps)
 
         # Oscillators
+        # overtones taken from a C4 on a piano, but slightly modified
+        # the tuples are [overtone_number, amplitude]
+        overtones = [
+            [0.25, 0.2],
+            [0.5, 0.2],
+            [1, 1],
+            [2, 0.9],
+            # [3, 0.15],
+            [4, 0.39],
+            [5, 0.39],
+            # [6, 0.05],
+            # [7, 0.05],
+            # [9, 0.05]
+        ]
         for freq, amp in freqs_amps:
-            # Security cutting frequencies over the Nyquist frequency
-            if freq > parameters.NYQUIST_FREQUENCY:
-                continue
-            output += self.white.get(indexes, output) * amp
+            for over_mult, over_amp in overtones:
+                output += self.sine.set(freq*over_mult, amp=amp*over_amp).get(indexes, output)
 
-        # There is no filtering of audio signal in this example
-        output = self.comb.get(indexes, output)
-
-        # This example is mono
-        return output, output
+        # Audio filtering
+        output = self.lowpass.get(indexes, output)
