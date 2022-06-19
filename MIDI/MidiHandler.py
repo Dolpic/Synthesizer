@@ -3,7 +3,7 @@ import numpy as np
 from parameters import DEBUG
 import current_script
 
-from MIDI.utils import midi_to_frequency, print_midi
+from MIDI.utils import midi_to_frequency, print_midi, FIX_PITCH
 from MIDI.constants import MIDI_HIGHEST_VELOCITY, MIDI_LOWEST_VELOCITY
 from MIDI.filters.Arpeggiator import Arpeggiator
 from MIDI.filters.Default import Default
@@ -29,7 +29,7 @@ class MidiHandler:
             )
 
         else:
-            status, key, velocity = (None,None,None)
+            status, key, velocity = (None, None, None)
 
         key_amplitude_tuples = current_script.miditofreq.process(status, key, velocity)
 
@@ -38,13 +38,16 @@ class MidiHandler:
                 (midi_to_frequency(note_amplitude[0], self.memory), note_amplitude[1], note_amplitude[0])
                 for note_amplitude in key_amplitude_tuples
             ]
-        
 
         for freq_and_dev, amp, note in result:
             self.memory.add(freq_and_dev[1], amp, note)
 
         self.past_data = (key_amplitude_tuples, result)
 
+        if FIX_PITCH:
+            self.memory.fix_pitch()
+
+        print(np.asarray([(freq_and_dev[0], amp) for freq_and_dev, amp, note in result]))
         return np.asarray([(freq_and_dev[0], amp) for freq_and_dev, amp, note in result])
 
     def apply_filter(self, status, note, velocity):

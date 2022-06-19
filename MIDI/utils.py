@@ -5,9 +5,13 @@ from parameters import DEBUG
 # SETTINGS
 REF_NOTE = 69
 REF_FREQUENCY = 440
-NB_NOTES_IN_SCALE = 12
-OCTAVE_FREQUENCY_RATIO = 2
-MODE = 1  # 0 = ET, 1 = PT, 2 = JI
+MODE = 2  # 0 = ET, 1 = PT, 2 = JI
+FIX_PITCH = True # fix pitch drifting for just intonation
+PARAM_NB_NOTES_IN_SCALE = 12
+PARAM_OCTAVE_FREQUENCY_RATIO = 2
+
+NB_NOTES_IN_SCALE = PARAM_NB_NOTES_IN_SCALE if MODE == 0 else 12
+OCTAVE_FREQUENCY_RATIO = PARAM_OCTAVE_FREQUENCY_RATIO if MODE == 0 else 2
 
 # PYTHAGOREAN TUNING (PT)
 PY_RATIOS = [
@@ -81,7 +85,7 @@ def equal_temperament(midi_number):
 
 def pythagorean_tuning(midi_number):
     note = int((midi_number - REF_NOTE) % NB_NOTES_IN_SCALE)
-    octave = (midi_number - REF_NOTE - note) / NB_NOTES_IN_SCALE
+    octave = (midi_number - REF_NOTE - note) / NB_NOTES_IN_SCALE - 1
     return (
         np.power(OCTAVE_FREQUENCY_RATIO, octave)
         * (OCTAVE_FREQUENCY_RATIO * PY_RATIOS[note])
@@ -103,10 +107,8 @@ def just_intonation(midi_number, memory):
                 for i in r
             ]
         )
-        - EPSILON
     )
     dev = -b / a
-
     # obtain corresponding frequency
     sol = equal_temperament(midi_number)[0] * np.power(2, dev / 1200)
 
