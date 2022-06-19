@@ -61,17 +61,15 @@ class ADSR(Module):
 
         to_delete = []
         for freq, elem in self.status.items():
+
             elem["remaining_samples"] -= SAMPLES_PER_FRAME
             amp = elem["amp"].get(indexes, indexes)
             amp_mult = elem["func"].get(indexes, indexes)
 
             if freq not in frequencies and elem["state"] != "release":
-                self.status[freq]["interpolation"] = amp_mult / copy.deepcopy(
-                    self.r_func
-                ).get(indexes, indexes)
-                self._set_entry(
-                    freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0]
-                )
+                r_func_value = copy.deepcopy(self.r_func).get(indexes, indexes)
+                self.status[freq]["interpolation"] = amp_mult / r_func_value if r_func_value.any() != 0 else 0
+                self._set_entry(freq, "release", self.r_func, self.r_time.get(indexes, indexes)[0])
 
             elif elem["remaining_samples"] <= 0:
                 if elem["state"] == "attack":

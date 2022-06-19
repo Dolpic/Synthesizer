@@ -9,7 +9,11 @@ import Modules.Linear
 import Modules.Exponential
 import Modules.Oscillators
 
+import Modules.filters.Biquad.Notch
+import Modules.filters.Biquad.PeakingEQ
+import Modules.filters.Biquad.LowShelf
 import Modules.filters.Biquad.LowPass
+import Modules.filters.Biquad.BandPass
 import Modules.filters.Biquad.HighPass
 import Modules.filters.Distortion.Clip
 import Modules.filters.Reverb
@@ -17,6 +21,7 @@ import Modules.filters.Resonator
 
 import numpy as np
 import parameters
+import time
 
 from typing import Optional, Tuple, NewType
 from numpy.typing import NDArray
@@ -51,50 +56,37 @@ class MidiToFreq:
 
 class FreqToAudio:
     def __init__(self):
-        # Filters
-        self.reverb = Modules.filters.Reverb.Reverb(delay=0.005, dampening=0.3)
-
         # Oscillators
         self.sine = Modules.Oscillators.Sine()
 
         # ADSR
-        attack_time = 0.005
-        attack_stop_level = 0.9
+        attack_time = 0.05
+        attack_stop_level = 0.8
         attack_func = Modules.Linear.Linear(start=0, stop=attack_stop_level, duration=attack_time)
-        decay_time = 3
-        decay_func=Modules.Exponential.Exponential(start=attack_stop_level, stop=0, duration=decay_time)
-        release_time = 0.1
+        decay_time = attack_time
+        decay_func=Modules.Linear.Linear(start=attack_stop_level, stop=0.7, duration=decay_time)
+        release_time = 0.05
         release_func = Modules.Linear.Linear(attack_stop_level, 0, release_time)
         self.adsr = Modules.ADSR.ADSR(
             attack_time=attack_time, attack_func=attack_func,
             decay_time=decay_time,   decay_func=decay_func,
-            sustain_func=0,
+            sustain_func=0.7,
             release_time=release_time, release_func=release_func,
         )
 
-    def process(self, indexes, freqs_amps) :
+    def process(self, indexes, freqs_amps):
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
-
-        # Frequencies filtering - ADSR
+        
+        # There is no filtering of frequencies and amplitudes in this example
         freqs_amps = self.adsr.get(indexes, freqs_amps)
 
         # Oscillators
-        overtones = [
-            [1, 1],
-            [2, 0.9],
-            [3, 0.15],
-            [4, 0.39],
-            [5, 0.39],
-            [6, 0.1],
-            [7, 0.2],
-            [9, 0.15]
-        ]
         for freq, amp in freqs_amps:
+            # Security cutting frequencies over the Nyquist frequency
             if freq > parameters.NYQUIST_FREQUENCY: continue
-            for over_mult, over_amp in overtones:
-                output += self.sine.set(freq*over_mult, amp=amp*over_amp).get(indexes, output)
-
-        # Audio filtering
-        output = self.reverb.get(indexes, output)
-
-        return output, output
+            output += self.sine.set(freq, amp=amp).get(indexes, output)
+            
+        # There is no filtering of audio signal in this example
+        
+        # This example is mono
+        return output, output 

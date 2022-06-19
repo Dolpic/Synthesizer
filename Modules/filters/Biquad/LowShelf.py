@@ -22,4 +22,4 @@ class LowShelf(Biquad):
         b1 = 2 * A * ((A - 1) - (A + 1) * cos_w0)
         b2 = A * ((A + 1) - (A - 1) * cos_w0 - 2 * A_sqrt * alpha)
 
-        self.c = np.array([b0, b1, b2, a1, a2]) / a0
+        self.c = [b0/a0, b1/a0, b2/a0, a1/a0, a2/a0]

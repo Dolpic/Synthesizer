@@ -19,4 +19,4 @@ class LowPass(Biquad):
         b1 = 1 - cos_w0
         b2 = (1 - cos_w0) / 2
 
-        self.c = np.array([b0, b1, b2, a1, a2]) / a0
+        self.c = [b0/a0, b1/a0, b2/a0, a1/a0, a2/a0]

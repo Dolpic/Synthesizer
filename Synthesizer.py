@@ -37,6 +37,8 @@ class Synthesizer:
 
             audio_stream.write(np.column_stack((right_samples, left_samples)))
             current_sample += parameters.SAMPLES_PER_FRAME
+        
+        audio_stream.stop()
 
     def on_press(self, key):
         if key == Key.enter:

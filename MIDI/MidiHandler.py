@@ -29,21 +29,16 @@ class MidiHandler:
             )
 
         else:
-            status, key, velocity = (
-                None,
-                None,
-                None,
-            )
+            status, key, velocity = (None,None,None)
 
         key_amplitude_tuples = current_script.miditofreq.process(status, key, velocity)
 
-        result = np.asarray(
-            [
+        result = [
                 self.past_data[1][self.past_data[0].index(note_amplitude)] if note_amplitude in self.past_data[0] else
                 (midi_to_frequency(note_amplitude[0], self.memory), note_amplitude[1], note_amplitude[0])
                 for note_amplitude in key_amplitude_tuples
             ]
-        )
+        
 
         for freq_and_dev, amp, note in result:
             self.memory.add(freq_and_dev[1], amp, note)
