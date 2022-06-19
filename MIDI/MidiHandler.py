@@ -1,6 +1,6 @@
 import numpy as np
 
-from parameters import DEBUG
+from parameters import DEBUG, FIX_PITCH
 import current_script
 
 from MIDI.utils import midi_to_frequency, print_midi
@@ -29,7 +29,7 @@ class MidiHandler:
             )
 
         else:
-            status, key, velocity = (None,None,None)
+            status, key, velocity = (None, None, None)
 
         keys_amps = current_script.miditofreq.process(status, key, velocity)
 
@@ -38,12 +38,14 @@ class MidiHandler:
                 (midi_to_frequency(key, self.memory), amp, key)
                 for key, amp in keys_amps
             ]
-        
 
         for freq_and_dev, amp, note in result:
             self.memory.add(freq_and_dev[1], amp, note)
 
         self.past_data = (keys_amps, result)
+
+        if FIX_PITCH:
+            self.memory.fix_pitch()
 
         return np.asarray([(freq_and_dev[0], amp) for freq_and_dev, amp, note in result])
 

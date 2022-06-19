@@ -66,32 +66,49 @@ class FreqToAudio:
         # ADSR
         attack_time = 0.05
         attack_stop_level = 0.8
-        attack_func = Modules.Linear.Linear(start=0, stop=attack_stop_level, duration=attack_time)
+        attack_func = Modules.Linear.Linear(
+            start=0, stop=attack_stop_level, duration=attack_time
+        )
         decay_time = attack_time
-        decay_func=Modules.Linear.Linear(start=attack_stop_level, stop=0.7, duration=decay_time)
+        decay_func = Modules.Linear.Linear(
+            start=attack_stop_level, stop=0.7, duration=decay_time
+        )
         release_time = 0.1
         release_func = Modules.Linear.Linear(attack_stop_level, 0, release_time)
         self.adsr = Modules.ADSR.ADSR(
-            attack_time=attack_time, attack_func=attack_func,
-            decay_time=decay_time,   decay_func=decay_func,
+            attack_time=attack_time,
+            attack_func=attack_func,
+            decay_time=decay_time,
+            decay_func=decay_func,
             sustain_func=0.7,
-            release_time=release_time, release_func=release_func,
+            release_time=release_time,
+            release_func=release_func,
         )
 
-    def process(self, indexes, freqs_amps):
+    def process(
+        self,
+        indexes: NDArray[SampleIndex],
+        freqs_amps: NDArray[Tuple[Frequency, Amplitude]],
+    ) -> Tuple[NDArray[RightChannelSampleValue], NDArray[LeftChannelSampleValue]]:
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
-        
+
         # There is no filtering of frequencies and amplitudes in this example
-        #freqs_amps = self.adsr.get(indexes, freqs_amps)
+        # freqs_amps = self.adsr.get(indexes, freqs_amps)
 
         # Oscillators
         for freq, amp in freqs_amps:
             # Security cutting frequencies over the Nyquist frequency
-            if freq > parameters.NYQUIST_FREQUENCY: continue
-            output += self.white.get(indexes, output)*amp
-            
+            if freq > parameters.NYQUIST_FREQUENCY:
+                continue
+            output += self.white.get(indexes, output) * amp
+
         # There is no filtering of audio signal in this example
+<<<<<<< HEAD
         output = self.shelf.get(indexes, output)
         
+=======
+        output = self.comb.get(indexes, output)
+
+>>>>>>> 86f59ae477f632086f9984f2fbc39592be84a7b7
         # This example is mono
-        return output, output 
+        return output, output
