@@ -58,13 +58,17 @@ class MidiToFreq:
 class FreqToAudio:
     def __init__(self):
         # Oscillators
-        self.sine = Modules.Oscillators.Sine()
+        self.square = Modules.Oscillators.Square()
         self.white = Modules.Oscillators.WhiteNoise()
-        self.comb = Modules.filters.Comb.Comb(1, Modules.Oscillators.Sine(1, 20, 20))
-        self.shelf = Modules.filters.Biquad.LowShelf.LowShelf(10000, 100, 50)
+        self.comb = Modules.filters.Comb.Comb(1, 20)
+        self.lowpass = Modules.filters.Biquad.LowPass.LowPass(10000, 2)
+        self.lowpass_hard = Modules.filters.Biquad.LowPass.LowPass(6000, 2)
+        self.clip = Modules.filters.Distortion.Clip.Clip(1.5, 0.2)
+        self.reverb = Modules.filters.Reverb.Reverb(0.01, 0.4)
+        self.lfo = Modules.Oscillators.Sine(4, 0.05)
 
         # ADSR
-        attack_time = 0.05
+        attack_time = 0.07
         attack_stop_level = 0.8
         attack_func = Modules.Linear.Linear(
             start=0, stop=attack_stop_level, duration=attack_time
@@ -92,18 +96,23 @@ class FreqToAudio:
     ) -> Tuple[NDArray[RightChannelSampleValue], NDArray[LeftChannelSampleValue]]:
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
 
-        # There is no filtering of frequencies and amplitudes in this example
-        # freqs_amps = self.adsr.get(indexes, freqs_amps)
+        freqs_amps = self.adsr.get(indexes, freqs_amps)
 
         # Oscillators
         for freq, amp in freqs_amps:
             # Security cutting frequencies over the Nyquist frequency
-            if freq > parameters.NYQUIST_FREQUENCY:
-                continue
-            output += self.white.get(indexes, output) * amp
+            if freq > parameters.NYQUIST_FREQUENCY: continue
+            output += self.white.get(indexes, output) * amp/5
+            output += self.square.set(freq,amp+self.lfo.get(indexes, output)).get(indexes, output)
 
-        # There is no filtering of audio signal in this example
         output = self.comb.get(indexes, output)
 
-        # This example is mono
+        output_reverb = self.lowpass_hard.get(indexes, output)
+        output_reverb = self.reverb.get(indexes, output_reverb)
+        output = 0.5*output + 0.5*output_reverb
+
+        output = self.lowpass.get(indexes, output)
+
+
+
         return output, output
