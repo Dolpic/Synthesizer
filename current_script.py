@@ -87,7 +87,7 @@ class FreqToAudio:
     def process(
         self,
         indexes: NDArray[SampleIndex],
-        freqs_amp: NDArray[Tuple[Frequency, Amplitude]],
+        freqs_amps: NDArray[Tuple[Frequency, Amplitude]],
     ) -> Tuple[NDArray[RightChannelSampleValue], NDArray[LeftChannelSampleValue]]:
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
 
