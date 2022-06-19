@@ -35,4 +35,17 @@ The class `MidiToFreq` specifies how MIDI messages should be converted to Freque
 
 The class `FreqToAudio` directly takes the output of the previous one, and converts it to actual Left/Right-Channel sound. All available modules/filters are in the `Modules/filters` folder.
 
-It is possible to tinker with the `parameters.py` file, notably with the `TEMPERAMENT` setting, which allows you to experience the automatic variable pitch algorithm.
+It is possible to tinker with the `parameters.py` file, notably with the `TEMPERAMENT` setting, which allows you to experience the automatic variable pitch algorithm. You can listen to your music in Just Intonation or even Pythagorean Tuning. Well, as close as possible to these tunings anyway. The algorithm will try to preserve the justness of important intervals, and so it may sometimes result in some dissonance. It's usually pretty good however.
+
+When you're done, load the settings with :
+```bash
+python cli_main.py -s my_awesome_script.py
+```
+
+You can also let the program play a MIDI file by itself ! Simply use `-m` :
+```bash
+python cli_main.py -s my_awesome_script.py -m my_awesome_midi.mid
+```
+
+That's all !
+Thank you very much.
