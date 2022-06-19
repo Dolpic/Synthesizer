@@ -103,12 +103,7 @@ class FreqToAudio:
             output += self.white.get(indexes, output) * amp
 
         # There is no filtering of audio signal in this example
-<<<<<<< HEAD
-        output = self.shelf.get(indexes, output)
-        
-=======
         output = self.comb.get(indexes, output)
 
->>>>>>> 86f59ae477f632086f9984f2fbc39592be84a7b7
         # This example is mono
         return output, output
