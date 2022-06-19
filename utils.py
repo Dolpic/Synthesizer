@@ -19,6 +19,7 @@ def show_peripherals():
     print("Audio Outputs : ")
     print(sd.query_devices())
 
+
 def init():
     sd.default.device = parameters.OUTPUT_DEVICE
     sd.default.samplerate = parameters.SAMPLING_FREQUENCY
