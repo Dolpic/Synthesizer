@@ -1,18 +1,19 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 from Synthesizer import Synthesizer
 from FilePlayer import FilePlayer
 from GUI import GUI
 
-from utils import show_peripherals
+import utils
 import current_script
 
 import parameters
-import os
 import pygame.midi
 import mido
 import argparse
 from multiprocessing import Queue, Process
 import sounddevice as sd
-
 
 if __name__ == "__main__":
 
@@ -25,35 +26,26 @@ if __name__ == "__main__":
     if args["s"]:
         with open(args["s"], "r") as script:
             exec(script.read(), globals())
-
             try:
                 current_script.MidiToFreq = MidiToFreq  # should be defined from the executed script.
                 current_script.FreqToAudio = FreqToAudio  # same
-
             except NameError:
                 raise ValueError("If you supply a script, please define classes MidiToFreq and FreqToAudio.")
 
     current_script.miditofreq = current_script.MidiToFreq()
     current_script.freqtoaudio = current_script.FreqToAudio()
 
-    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-    sd.default.device = parameters.OUTPUT_DEVICE
-    sd.default.samplerate = parameters.SAMPLING_FREQUENCY
+    utils.init()
     pygame.midi.init()
     midi_input = pygame.midi.Input(parameters.INPUT_MIDI_DEVICE)
-    mido.set_backend('mido.backends.pygame')
+
+    queue = Queue()
+    gui = GUI(queue)
+    proc = Process(target=gui.run).start()
+    synth = Synthesizer(queue, midi_input)
+    synth.run()
 
     if args["m"]:
         file_player = FilePlayer(args["m"])
         file_player_proc = Process(target=file_player.run)
-
-    queue = Queue()
-    synth = Synthesizer(queue, midi_input)
-    gui = GUI(queue)
-    proc = Process(target=gui.run).start()
-    show_peripherals()
-
-    if args["m"]:
         file_player_proc.start()
-
-    synth.run()

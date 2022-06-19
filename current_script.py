@@ -18,6 +18,7 @@ import Modules.filters.Biquad.HighPass
 import Modules.filters.Distortion.Clip
 import Modules.filters.Reverb
 import Modules.filters.Resonator
+import Modules.filters.Comb
 
 import numpy as np
 import parameters
@@ -58,6 +59,8 @@ class FreqToAudio:
     def __init__(self):
         # Oscillators
         self.sine = Modules.Oscillators.Sine()
+        self.white = Modules.Oscillators.WhiteNoise()
+        self.comb = Modules.filters.Comb.Comb(1, Modules.Oscillators.Sine(1, 20, 20))
 
         # ADSR
         attack_time = 0.05
@@ -65,7 +68,7 @@ class FreqToAudio:
         attack_func = Modules.Linear.Linear(start=0, stop=attack_stop_level, duration=attack_time)
         decay_time = attack_time
         decay_func=Modules.Linear.Linear(start=attack_stop_level, stop=0.7, duration=decay_time)
-        release_time = 0.05
+        release_time = 0.1
         release_func = Modules.Linear.Linear(attack_stop_level, 0, release_time)
         self.adsr = Modules.ADSR.ADSR(
             attack_time=attack_time, attack_func=attack_func,
@@ -78,15 +81,16 @@ class FreqToAudio:
         output = np.zeros(parameters.SAMPLES_PER_FRAME)
         
         # There is no filtering of frequencies and amplitudes in this example
-        freqs_amps = self.adsr.get(indexes, freqs_amps)
+        #freqs_amps = self.adsr.get(indexes, freqs_amps)
 
         # Oscillators
         for freq, amp in freqs_amps:
             # Security cutting frequencies over the Nyquist frequency
             if freq > parameters.NYQUIST_FREQUENCY: continue
-            output += self.sine.set(freq, amp=amp).get(indexes, output)
+            output += self.white.get(indexes, output)*amp
             
         # There is no filtering of audio signal in this example
+        output = self.comb.get(indexes, output)
         
         # This example is mono
         return output, output 

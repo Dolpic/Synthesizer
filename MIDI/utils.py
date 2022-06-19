@@ -1,13 +1,12 @@
 import numpy as np
 from MIDI.constants import MIDI_LOWEST_KEY, MIDI_HIGHEST_KEY
-from parameters import DEBUG
+from parameters import DEBUG, TEMPERAMENT
 
 # SETTINGS
 REF_NOTE = 69
 REF_FREQUENCY = 440
 NB_NOTES_IN_SCALE = 12
 OCTAVE_FREQUENCY_RATIO = 2
-MODE = 1  # 0 = ET, 1 = PT, 2 = JI
 
 # PYTHAGOREAN TUNING (PT)
 PY_RATIOS = [
@@ -60,12 +59,13 @@ def print_midi(status, note, velocity):
 
 def midi_to_frequency(midi_number, memory):
     result = 0
-    if MODE == 0:
+    if TEMPERAMENT == 0:
         result = equal_temperament(midi_number)
-    if MODE == 1:
+    elif TEMPERAMENT == 1:
         result = pythagorean_tuning(midi_number)
-    if MODE == 2:
+    elif TEMPERAMENT == 2:
         result = just_intonation(midi_number, memory)
+
     if DEBUG:
         print("key in :", midi_number, " => freq :", result[0])
     return result
