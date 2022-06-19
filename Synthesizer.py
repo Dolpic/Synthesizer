@@ -22,7 +22,8 @@ class Synthesizer:
             Listener(on_press=self.on_press).start()
         else:
             self.is_running = True
-            self.file_player_proc.start()
+            if self.file_player_proc:
+                self.file_player_proc.start()
 
         midi_handler = MidiHandler()
         audio_stream = sd.OutputStream(channels=2)

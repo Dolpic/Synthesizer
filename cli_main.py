@@ -45,7 +45,6 @@ if __name__ == "__main__":
     file_player_proc = None
     if args["m"]:
         file_player = FilePlayer(args["m"])
-        print("jeu")
         file_player_proc = Process(target=file_player.run)
 
     synth = Synthesizer(queue, midi_input, False, file_player_proc)
