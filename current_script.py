@@ -110,3 +110,5 @@ class FreqToAudio:
 
         # Audio filtering
         output = self.lowpass.get(indexes, output)
+
+        return output
